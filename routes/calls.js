@@ -15,6 +15,7 @@ const {
 * responses: 
 */
 router.get('/', async (req, res, next) => {
+	console.log('get / attempt');
 	try {
 		const num = await getNumber();
 		console.log('calls.js: ', num);
