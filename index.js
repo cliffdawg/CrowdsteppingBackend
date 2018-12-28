@@ -6,7 +6,8 @@ const express = require('express');
 
 const postsRouter = require('./routes/calls.js');
 
-const PORT = 8080;
+const PORT = process.env.PORT || 3003
+//const PORT = 8080;
 
 const app = express();
 
