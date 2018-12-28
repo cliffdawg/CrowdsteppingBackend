@@ -13,6 +13,7 @@ const app = express();
 
 app.use(express.json());
 
+// Heroku deployed backend will use '/' route
 // When using a proxy, cannot use root endpoint '/' for route, will return HTML
 app.use('/', postsRouter);
 

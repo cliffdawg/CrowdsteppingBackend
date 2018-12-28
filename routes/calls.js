@@ -36,14 +36,14 @@ router.get('/:id', async (req, res, next) => {
 	    getData(req.params.id, function(err, data) {
           if (err) {
             // error handling code goes here
-            console.log("Error: ", err);            
+            console.log("Error: ", err); 
+            next(err);           
           } else {            
             // code to execute on data retrieval
-            console.log("Data: ", data);   
+            console.log("Data: ", data); 
+            res.json(data);  
           }    
 	    });
-	    const num = '7';
-		res.end(num);
 	} catch (err) {
 		next(err);
 	}
@@ -60,14 +60,14 @@ router.post('/', async (req, res, next) => {
 		createData(req.body, function(err, data) {
           if (err) {
             // error handling code goes here
-            console.log("Error: ", err);            
+            console.log("Error: ", err); 
+            next(err);           
           } else {            
             // code to execute on data retrieval
             console.log("Data: ", data);   
+            res.json(data);
           }    
 	    });
-		const num = '8';
-		res.end(num);
 	} catch (err) {
 		next(err);
 	}

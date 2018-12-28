@@ -19,7 +19,7 @@ async function getData(id, callback) {
 	  database : 'heroku_a5d644126ee20ea',
 	  insecureAuth : true
 	});
-	
+
 	connection.connect((err) => {
 	  if (err) {
 	    console.error('Error connecting: ' + err.stack);
@@ -29,7 +29,7 @@ async function getData(id, callback) {
 	});
 
 	console.log('SELECT * FROM tests WHERE id = ' + id + ';');
-	connection.query('SELECT * FROM tests WHERE id = ' + id + ';', (err, rows, fields) => {
+	connection.query('SELECT * FROM tests WHERE id = ?;', [id], (err, rows, fields) => {
 		if (err) {
 		  console.log('Failure: ' + err);
 		  callback(err, null);
@@ -61,13 +61,13 @@ async function createData(create, callback) {
 	console.log('Creating: ', `INSERT INTO tests (first_var, second_var, third_var) 
 		VALUES ( \'` + create.firstVar + `\', \'` + create.secondVar + `\', ` + create.thirdVar + ` );`);
 	connection.query(`INSERT INTO tests (first_var, second_var, third_var) 
-		VALUES ( \'` + create.firstVar + `\', \'` + create.secondVar + `\', ` + create.thirdVar + ` );`, (err, rows, fields) => {
+		VALUES (?, ?, ?);`, [create.firstVar, create.secondVar, create.thirdVar], (err, rows, fields) => {
 			if (err) {
 			  console.log('Failure: ' + err);
 			  callback(err, null);
 			} else {
-			  callback('Success');
-			  console.log(null, rows);
+			  console.log('Success');
+			  callback(null, rows);
 			}
 	})
 }
