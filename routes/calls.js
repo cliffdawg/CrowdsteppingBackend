@@ -9,6 +9,22 @@ const {
 } = require('../database/index.js');
 
 /**
+* endpoint: /
+* method: GET
+* description: 
+* responses: 
+*/
+router.get('/', async (req, res, next) => {
+	try {
+		const num = await getNumber();
+		console.log('calls.js: ', num);
+		res.end(num);
+	} catch (err) {
+		next(err);
+	}
+});
+
+/**
 * endpoint: /:id
 * method: GET
 * description: 
@@ -50,22 +66,6 @@ router.post('/', async (req, res, next) => {
           }    
 	    });
 		const num = '8';
-		res.end(num);
-	} catch (err) {
-		next(err);
-	}
-});
-
-/**
-* endpoint: /
-* method: GET
-* description: 
-* responses: 
-*/
-router.get('/', async (req, res, next) => {
-	try {
-		const num = await getNumber();
-		console.log('calls.js: ', num);
 		res.end(num);
 	} catch (err) {
 		next(err);
