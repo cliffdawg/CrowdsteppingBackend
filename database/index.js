@@ -2,11 +2,19 @@
 
 const mysql = require('mysql');
 
+// const connection = mysql.createConnection({
+//   host: 'localhost',
+//   user: 'root',
+//   password: 'cyin_168',
+//   database : 'project1',
+//   insecureAuth : true
+// });
+
 const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'cyin_168',
-  database : 'project1',
+  host: 'us-cdbr-iron-east-01.cleardb.net',
+  user: 'b3e831455848db',
+  password: 'b00e7d07',
+  database : 'heroku_a5d644126ee20ea',
   insecureAuth : true
 });
 
