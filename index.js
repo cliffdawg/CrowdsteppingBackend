@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json());
 
 // When using a proxy, cannot use root endpoint '/' for route, will return HTML
-app.use('/api', postsRouter);
+app.use('/', postsRouter);
 
 app.listen(PORT, () => {
 	console.log('App is running on port ' + PORT);

@@ -10,24 +10,24 @@ const mysql = require('mysql');
 //   insecureAuth : true
 // });
 
-const connection = mysql.createConnection({
-  host: 'us-cdbr-iron-east-01.cleardb.net',
-  user: 'b3e831455848db',
-  password: 'b00e7d07',
-  database : 'heroku_a5d644126ee20ea',
-  insecureAuth : true
-});
-
-connection.connect((err) => {
-  if (err) {
-    console.error('Error connecting: ' + err.stack);
-    return;
-  }
-  console.log('Connected!');
-});
-
 async function getData(id, callback) {
-	// SELECT * FROM tests WHERE id = 1;
+
+	const connection = mysql.createConnection({
+	  host: 'us-cdbr-iron-east-01.cleardb.net',
+	  user: 'b3e831455848db',
+	  password: 'b00e7d07',
+	  database : 'heroku_a5d644126ee20ea',
+	  insecureAuth : true
+	});
+	
+	connection.connect((err) => {
+	  if (err) {
+	    console.error('Error connecting: ' + err.stack);
+	    return;
+	  }
+	  console.log('Connected!');
+	});
+
 	console.log('SELECT * FROM tests WHERE id = ' + id + ';');
 	connection.query('SELECT * FROM tests WHERE id = ' + id + ';', (err, rows, fields) => {
 		if (err) {
@@ -41,6 +41,23 @@ async function getData(id, callback) {
 }
 
 async function createData(create, callback) {
+
+	const connection = mysql.createConnection({
+	  host: 'us-cdbr-iron-east-01.cleardb.net',
+	  user: 'b3e831455848db',
+	  password: 'b00e7d07',
+	  database : 'heroku_a5d644126ee20ea',
+	  insecureAuth : true
+	});
+
+	connection.connect((err) => {
+	  if (err) {
+	    console.error('Error connecting: ' + err.stack);
+	    return;
+	  }
+	  console.log('Connected!');
+	});
+
 	console.log('Creating: ', `INSERT INTO tests (first_var, second_var, third_var) 
 		VALUES ( \'` + create.firstVar + `\', \'` + create.secondVar + `\', ` + create.thirdVar + ` );`);
 	connection.query(`INSERT INTO tests (first_var, second_var, third_var) 
