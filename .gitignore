@@ -1,0 +1,3 @@
+# Ignore .env credentials file
+
+.env

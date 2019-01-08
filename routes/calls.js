@@ -3,8 +3,11 @@
 const express = require('express');
 const router = express.Router();
 const {
+	checkToken,
 	getData,
 	createData,
+	signUp,
+	signIn,
 	getNumber
 } = require('../database/index.js');
 
@@ -18,7 +21,7 @@ router.get('/', async (req, res, next) => {
 	console.log('get / attempt');
 	try {
 		const num = await getNumber();
-		console.log('calls.js: ', num);
+		console.log(`calls.js: ${num}`);
 		res.end(num);
 	} catch (err) {
 		next(err);
@@ -32,21 +35,51 @@ router.get('/', async (req, res, next) => {
 * responses: 
 */
 router.get('/:id', async (req, res, next) => {
-	try {
-	    getData(req.params.id, function(err, data) {
-          if (err) {
-            // error handling code goes here
-            console.log("Error: ", err); 
-            next(err);           
-          } else {            
-            // code to execute on data retrieval
-            console.log("Data: ", data); 
-            res.json(data);  
-          }    
-	    });
-	} catch (err) {
-		next(err);
-	}
+	// Validate token, and continue onwards if successful
+	checkToken(req, function(err, data) {
+		  if (err) {
+		      console.log(`Error: ${err}, ${data}`);
+		      // If token is not validated, skip to next router
+		      next('route');           
+		  } else {            
+		      // If token is validated, pass control to next middleware function in stack
+		      console.log(`Data: ${data}`);   
+		      next();
+		    }    
+		});
+	}, function (req, res, next) {
+		// Get the data for a specified object in database
+		try {
+			getData(req.params.id, function(err, data) {
+		        if (err) {
+		          // error handling code goes here
+		          console.log(`Error: ${err}`); 
+		          next(err);           
+		        } else {            
+		          // code to execute on data retrieval
+		          console.log(`Data: ${data}`); 
+		          res.json({
+		          	success: true,
+		          	data: data
+		          });  
+		        }    
+			  });
+		} catch (err) {
+			next(err);
+		}
+});
+
+/**
+* endpoint: /:id
+* method: GET
+* description: 
+* responses: 
+*/
+router.get('/:id', async (req, res, next) => {
+  	res.json({
+		success: false,
+		message: 'Token cannot be validated!'
+	});
 });
 
 /**
@@ -56,15 +89,73 @@ router.get('/:id', async (req, res, next) => {
 * responses: 
 */
 router.post('/', async (req, res, next) => {
+	  checkToken(req, function(err, data) {
+		    if (err) {
+		        // error handling code goes here
+		        console.log(`Error: ${err}, ${data}`);
+		        // If token is not validated, skip to next router
+		        next('route');           
+		    } else {            
+		        // If token is validated, pass control to next middleware function in stack
+		        console.log(`Data: ${data}`);   
+		        next();
+		      }    
+		});
+	}, function (req, res, next) {
+
 	try {
 		createData(req.body, function(err, data) {
           if (err) {
             // error handling code goes here
-            console.log("Error: ", err); 
+            console.log(`Error: ${err}`);
+            res.json({
+				success: false,
+				message: 'Failed to create'
+			}); 
             next(err);           
           } else {            
             // code to execute on data retrieval
-            console.log("Data: ", data);   
+            console.log(`Data: ${data}`); 
+            res.json({
+				success: true,
+				message: 'Succeeded in creating'
+			});   
+          }    
+	    });
+	} catch (err) {
+		next(err);
+	}
+});
+
+/**
+* endpoint: /:id
+* method: GET
+* description: 
+* responses: 
+*/
+router.post('/', async (req, res, next) => {
+  	res.json({
+		success: false,
+		message: 'Token cannot be validated!'
+	});
+});
+
+/**
+* endpoint: /signup
+* method: POST
+* description: 
+* responses: 
+*/
+router.post('/signup', async (req, res, next) => {
+	try {
+		signUp(req.body, function(err, data) {
+          if (err) {
+            // error handling code goes here
+            console.log(`Error: ${err}`); 
+            next(err);           
+          } else {            
+            // code to execute on data retrieval
+            console.log(`Data: ${data}`);   
             res.json(data);
           }    
 	    });
@@ -72,6 +163,36 @@ router.post('/', async (req, res, next) => {
 		next(err);
 	}
 });
+
+router.post('/signin', async (req, res, next) => {
+  	try {
+		signIn(req.body, function(err, data) {
+	      if (err) {
+	        // error handling code goes here
+	        console.log(`Error: ${err}, ${data}`); 
+	        res.json({
+		        success: false,
+		        message: data
+		    });
+		    //next(err);           
+	      } else {            
+	        // code to execute on data retrieval
+	        console.log(`Data: ${data}`);   
+	        res.json({
+		        success: true,
+		        message: 'Authentication successful!',
+		        token: data
+		    });
+	      }    
+		});
+	} catch (err) {
+		res.json({
+		    success: false,
+		    message: 'Username has no match'
+		});
+		next(err);
+	}
+})
 
 // Register an error handler as well.
 router.use((err, req, res) => {
