@@ -67,6 +67,10 @@ router.get('/goals', async (req, res, next) => {
 		        }    
 			  });
 		} catch (err) {
+			res.json({
+			    success: false,
+			    message: 'Cannot get goals data!'
+			});
 			next(err);
 		}
 });
@@ -80,7 +84,7 @@ router.get('/goals', async (req, res, next) => {
 router.get('/goals', async (req, res, next) => {
   	res.json({
 		success: false,
-		message: 'Cannot get goals data!'
+		message: 'Token cannot be validated!'
 	});
 });
 
