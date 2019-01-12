@@ -74,6 +74,44 @@ async function getData(id, callback) {
 	});
 }
 
+async function getGoals(callback) {
+
+	const connection = mysql.createConnection({
+	  host: process.env.REMOTE_HOST,
+	  user: process.env.REMOTE_USER,
+	  password: process.env.REMOTE_PASSWORD,
+	  database: process.env.REMOTE_DATABASE,
+	  insecureAuth: process.env.REMOTE_INSECUREAUTH
+	});
+// const connection = mysql.createConnection({
+//   host: process.env.LOCAL_HOST,
+//   user: process.env.LOCAL_USER,
+//   password: process.env.LOCAL_PASSWORD,
+//   database: process.env.LOCAL_DATABASE,
+//   insecureAuth: process.env.LOCAL_INSECUREAUTH
+// });
+
+	connection.connect((err) => {
+	  if (err) {
+	    console.error('Error connecting: ' + err.stack);
+	    return;
+	  }
+	  console.log('Connected!');
+
+	  console.log(`SELECT * FROM goals;`);
+	  connection.query('SELECT * FROM goals;', (err, rows, fields) => {
+		if (err) {
+		  console.log(`Failure: ${err}`);
+		  callback(err, null);
+		} else {
+		  console.log('Success');
+		  callback(null, rows);
+		}
+	  })
+
+	});
+}
+
 async function createData(create, callback) {
 
 	const connection = mysql.createConnection({
@@ -236,6 +274,7 @@ async function getNumber() {
 module.exports = {
 	checkToken,
 	getData,
+	getGoals,
 	createData,
 	signUp,
 	signIn,

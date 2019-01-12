@@ -5,6 +5,7 @@ const router = express.Router();
 const {
 	checkToken,
 	getData,
+	getGoals,
 	createData,
 	signUp,
 	signIn,
@@ -26,6 +27,61 @@ router.get('/', async (req, res, next) => {
 	} catch (err) {
 		next(err);
 	}
+});
+
+/**
+* endpoint: /:id
+* method: GET
+* description: 
+* responses: 
+*/
+router.get('/goals', async (req, res, next) => {
+	console.log(`calls get goals`);
+	// Validate token, and continue onwards if successful
+	checkToken(req, function(err, data) {
+		  if (err) {
+		      console.log(`Error: ${err}, ${data}`);
+		      // If token is not validated, skip to next router
+		      next('route');           
+		  } else {            
+		      // If token is validated, pass control to next middleware function in stack
+		      console.log(`Data: ${data}`);   
+		      next();
+		    }    
+		});
+	}, function (req, res, next) {
+		// Get the data for a specified object in database
+		try {
+			getGoals(function(err, data) {
+		        if (err) {
+		          // error handling code goes here
+		          console.log(`Error: ${err}`); 
+		          next(err);           
+		        } else {            
+		          // code to execute on data retrieval
+		          console.log(`Data: ${data}`); 
+		          res.json({
+		          	success: true,
+		          	data: data
+		          });  
+		        }    
+			  });
+		} catch (err) {
+			next(err);
+		}
+});
+
+/**
+* endpoint: /:id
+* method: GET
+* description: 
+* responses: 
+*/
+router.get('/goals', async (req, res, next) => {
+  	res.json({
+		success: false,
+		message: 'Cannot get goals data!'
+	});
 });
 
 /**
