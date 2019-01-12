@@ -105,6 +105,7 @@ async function getGoals(callback) {
 		  callback(err, null);
 		} else {
 		  console.log('Success');
+		  console.log(rows);
 		  callback(null, rows);
 		}
 	  })
