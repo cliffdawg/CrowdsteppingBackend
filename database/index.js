@@ -214,7 +214,8 @@ async function signUp(signup, callback) {
 			 //    })
 	   //      });
 
-	});
+		});
+	}
 }
 
 async function signIn(signin, callback) {
