@@ -60,6 +60,8 @@ router.get('/goals', async (req, res, next) => {
 		        } else {            
 		          // code to execute on data retrieval
 		          console.log(`Data: ${data}`); 
+		          // The data received here is a packet of rows whose values
+		          // can be accessed with property ID's
 		          res.json({
 		          	success: true,
 		          	data: data

@@ -7,6 +7,14 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
+const pool  = mysql.createPool({
+  host: process.env.REMOTE_HOST,
+  user: process.env.REMOTE_USER,
+  password: process.env.REMOTE_PASSWORD,
+  database: process.env.REMOTE_DATABASE,
+  insecureAuth: process.env.REMOTE_INSECUREAUTH
+});
+
 // const connection = mysql.createConnection({
 //   host: process.env.LOCAL_HOST,
 //   user: process.env.LOCAL_USER,
@@ -105,8 +113,8 @@ async function getGoals(callback) {
 		  callback(err, null);
 		} else {
 		  console.log('Success');
-		  console.log(rows[0]);
-		  callback(null, rows[0]);
+		  console.log(rows);
+		  callback(null, rows);
 		}
 	  })
 
@@ -215,12 +223,12 @@ async function signIn(signin, callback) {
 //   insecureAuth: process.env.LOCAL_INSECUREAUTH
 // });
 
-	connection.connect((err) => {
-	  if (err) {
-	    console.error('Error connecting: ' + err.stack);
+	pool.getConnection(function(err, connection) {
+  	  if (err) {
+	    console.error('Error in pool connecting: ' + err.stack);
 	    return;
-	  }
-	  console.log('Connected!');
+	  } 
+	  console.log('Pool connected!');
 	  console.log(`Signing in: SELECT username, email, passHash FROM users WHERE username = \'${signin.username}\';`);
 	  connection.query('SELECT username, email, passHash FROM users WHERE username = ?;', [signin.username], (err, rows, fields) => {
 			try {  
@@ -261,6 +269,7 @@ async function signIn(signin, callback) {
 			} catch (err) {
 				callback(err, 'Username has no match');
 			}
+			connection.release();
 	  })
 	});
 
