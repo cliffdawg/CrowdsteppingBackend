@@ -191,7 +191,8 @@ async function signUp(signup, callback) {
 			  console.log(`Failure: ${err}`);
 			  callback(err, null);
 		  } else {
-			  console.log('Success');
+		  	  // Both valid/invalid username reaches this closure
+			  console.log(`Success: ${rows}`);
 			  callback(null, rows);
 		  }
 
