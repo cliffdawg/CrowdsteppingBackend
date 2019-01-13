@@ -194,6 +194,11 @@ async function signUp(signup, callback) {
 		  } else {
 		  	  // Both valid/invalid username reaches this closure
 			  console.log(`Success: ${rows}`);
+			  if (rows) {
+			  	console.log('Data is here');
+			  } else {
+			  	console.log('No data')
+			  }
 			  callback(null, rows);
 		  }
 
