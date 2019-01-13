@@ -190,14 +190,15 @@ async function signUp(signup, callback) {
 	  console.log('Connected!');
 	  console.log(`Username: ${signup.username}`);
 	  connection.query(`SELECT * FROM users WHERE username = ?;`, [signup.username], (err, rows, fields) => {
-	  	  connection.release();
 		  if (err) {
+		  	  connection.release();
 			  console.log(`Failure: ${err}`);
 			  callback(err, 'MySQL connection error');
 		  } else {
 		  	  // Both valid/invalid username reaches this closure
 			  console.log(`Success: ${rows}`);
 			  if (Object.keys(rows).length !== 0) {
+			  	connection.release();
 			  	console.log('Data is here')
 			  	callback('Can\'t sign up', 'Username already exists!');
 			  } else {
