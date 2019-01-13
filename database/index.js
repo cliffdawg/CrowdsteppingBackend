@@ -185,6 +185,7 @@ async function signUp(signup, callback) {
 	    return;
 	  } 
 	  console.log('Connected!');
+	  console.log(`Username: ${signup.username}`);
 	  connection.query(`SELECT * FROM users WHERE username = ?;`, [signup.username], (err, rows, fields) => {
 	  	  connection.release();
 		  if (err) {
