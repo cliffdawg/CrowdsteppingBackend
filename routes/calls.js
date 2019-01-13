@@ -55,8 +55,12 @@ router.get('/goals', async (req, res, next) => {
 			getGoals(function(err, data) {
 		        if (err) {
 		          // error handling code goes here
-		          console.log(`Error: ${err}`); 
-		          next(err);           
+		          console.log(`Error: ${err}, ${data}`); 
+			      res.json({
+				      success: false,
+				      message: data
+				  });
+				  //next(err);          
 		        } else {            
 		          // code to execute on data retrieval
 		          console.log(`Data: ${data}`); 
@@ -213,12 +217,21 @@ router.post('/signup', async (req, res, next) => {
 		signUp(req.body, function(err, data) {
           if (err) {
             // error handling code goes here
-            console.log(`Error: ${err}`); 
-            next(err);           
+            console.log(`Error: ${err}, ${data}`); 
+	        res.json({
+		        success: false,
+		        message: data
+		    });
+		    //next(err);           
           } else {            
             // code to execute on data retrieval
             console.log(`Data: ${data}`);   
-            res.json(data);
+            res.json({
+		        success: true,
+		        message: 'Sign up successful!',
+		        data: data.data,
+		        token: data.token
+		    });
           }    
 	    });
 	} catch (err) {

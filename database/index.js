@@ -102,6 +102,7 @@ async function getGoals(callback) {
 	pool.getConnection(function(err, connection) {
   	  if (err) {
 	    console.error('Error in pool connecting: ' + err.stack);
+	    callback(err, 'Error in pool connecting!');
 	    return;
 	  } 
 	  console.log('Connected!');
@@ -110,7 +111,7 @@ async function getGoals(callback) {
 	  	connection.release();
 		if (err) {
 		  console.log(`Failure: ${err}`);
-		  callback(err, null);
+		  callback(err, 'MySQL connection error');
 		} else {
 		  console.log('Success');
 		  console.log(rows);
@@ -141,6 +142,7 @@ async function createData(create, callback) {
 	pool.getConnection(function(err, connection) {
   	  if (err) {
 	    console.error('Error in pool connecting: ' + err.stack);
+	    callback(err, 'Error in pool connecting!');
 	    return;
 	  } 
 	  console.log('Connected!');
@@ -182,6 +184,7 @@ async function signUp(signup, callback) {
 	pool.getConnection(function(err, connection) {
   	  if (err) {
 	    console.error('Error in pool connecting: ' + err.stack);
+	    callback(err, 'Error in pool connecting!');
 	    return;
 	  } 
 	  console.log('Connected!');
@@ -190,37 +193,47 @@ async function signUp(signup, callback) {
 	  	  connection.release();
 		  if (err) {
 			  console.log(`Failure: ${err}`);
-			  callback(err, null);
+			  callback(err, 'MySQL connection error');
 		  } else {
 		  	  // Both valid/invalid username reaches this closure
 			  console.log(`Success: ${rows}`);
-			  if (Object.keys(rows).length === 0) {
-			  	console.log('No data');
-			  } else {
+			  if (Object.keys(rows).length !== 0) {
 			  	console.log('Data is here')
+			  	callback('Can\'t sign up', 'Username already exists!');
+			  } else {
+			  	console.log('No data, proceed')
+			  	const saltRounds = 12;
+			    bcrypt.hash(signup.password, saltRounds, function(err, hash) {
+			        // Store hash in your password DB.
+			        console.log(`Pass: ${signup.password}, Hash: ${hash}`);
+			        console.log(`Signing up: INSERT INTO users (username, email, passHash) 
+					  VALUES ( \'${signup.username}\', \'${signup.email}\', ${hash});`);
+					  connection.query(`INSERT INTO users (username, email, passHash) 
+						VALUES (?, ?, ?);`, [signup.username, signup.email, hash], (err, rows, fields) => {
+							connection.release();
+							if (err) {
+							  callback(err, 'MySQL connection error');
+							} else {
+							  const token = jwt.sign(
+								{
+									username: signup.username,
+									email: signup.email
+								},
+					        	process.env.PRIVATE_KEY,
+					            { 
+					            	algorithm: 'HS256',
+					          		expiresIn: 60 * 60 
+					          	})
+							  const payload = {
+						            data: rows,
+						            token: token
+						        };
+							  callback(null, payload);
+							}
+					    })
+			        });
 			  }
-			  callback(null, rows);
 		  }
-
-		  // const saltRounds = 12;
-	   //    bcrypt.hash(signup.password, saltRounds, function(err, hash) {
-	   //      // Store hash in your password DB.
-	   //      console.log(`Pass: ${signup.password}, Hash: ${hash}`);
-	   //      console.log(`Signing up: INSERT INTO users (username, email, passHash) 
-			 //  VALUES ( \'${signup.username}\', \'${signup.email}\', ${hash});`);
-			 //  connection.query(`INSERT INTO users (username, email, passHash) 
-				// VALUES (?, ?, ?);`, [signup.username, signup.email, hash], (err, rows, fields) => {
-				// 	connection.release();
-				// 	if (err) {
-				// 	  console.log(`Failure: ${err}`);
-				// 	  callback(err, null);
-				// 	} else {
-				// 	  console.log('Success');
-				// 	  callback(null, rows);
-				// 	}
-			 //    })
-	   //      });
-
 		});
 	})
 }
@@ -245,6 +258,7 @@ async function signIn(signin, callback) {
 	pool.getConnection(function(err, connection) {
   	  if (err) {
 	    console.error('Error in pool connecting: ' + err.stack);
+	    callback(err, 'Error in pool connecting!');
 	    return;
 	  } 
 	  console.log('Pool connected!');
