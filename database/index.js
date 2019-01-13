@@ -44,43 +44,43 @@ async function checkToken(req, callback) {
     }
 };
 
-async function getData(id, callback) {
+// async function getData(id, callback) {
 
-	const connection = mysql.createConnection({
-	  host: process.env.REMOTE_HOST,
-	  user: process.env.REMOTE_USER,
-	  password: process.env.REMOTE_PASSWORD,
-	  database: process.env.REMOTE_DATABASE,
-	  insecureAuth: process.env.REMOTE_INSECUREAUTH
-	});
-// const connection = mysql.createConnection({
-//   host: process.env.LOCAL_HOST,
-//   user: process.env.LOCAL_USER,
-//   password: process.env.LOCAL_PASSWORD,
-//   database: process.env.LOCAL_DATABASE,
-//   insecureAuth: process.env.LOCAL_INSECUREAUTH
-// });
+// 	const connection = mysql.createConnection({
+// 	  host: process.env.REMOTE_HOST,
+// 	  user: process.env.REMOTE_USER,
+// 	  password: process.env.REMOTE_PASSWORD,
+// 	  database: process.env.REMOTE_DATABASE,
+// 	  insecureAuth: process.env.REMOTE_INSECUREAUTH
+// 	});
+// // const connection = mysql.createConnection({
+// //   host: process.env.LOCAL_HOST,
+// //   user: process.env.LOCAL_USER,
+// //   password: process.env.LOCAL_PASSWORD,
+// //   database: process.env.LOCAL_DATABASE,
+// //   insecureAuth: process.env.LOCAL_INSECUREAUTH
+// // });
 
-	connection.connect((err) => {
-	  if (err) {
-	    console.error('Error connecting: ' + err.stack);
-	    return;
-	  }
-	  console.log('Connected!');
+// 	connection.connect((err) => {
+// 	  if (err) {
+// 	    console.error('Error connecting: ' + err.stack);
+// 	    return;
+// 	  }
+// 	  console.log('Connected!');
 
-	  console.log(`SELECT * FROM tests WHERE id = ${id};`);
-	  connection.query('SELECT * FROM tests WHERE id = ?;', [id], (err, rows, fields) => {
-		if (err) {
-		  console.log(`Failure: ${err}`);
-		  callback(err, null);
-		} else {
-		  console.log('Success');
-		  callback(null, rows);
-		}
-	  })
+// 	  console.log(`SELECT * FROM tests WHERE id = ${id};`);
+// 	  connection.query('SELECT * FROM tests WHERE id = ?;', [id], (err, rows, fields) => {
+// 		if (err) {
+// 		  console.log(`Failure: ${err}`);
+// 		  callback(err, null);
+// 		} else {
+// 		  console.log('Success');
+// 		  callback(null, rows);
+// 		}
+// 	  })
 
-	});
-}
+// 	});
+// }
 
 async function getGoals(callback) {
 
@@ -122,13 +122,13 @@ async function getGoals(callback) {
 
 async function createData(create, callback) {
 
-	const connection = mysql.createConnection({
-	  host: process.env.REMOTE_HOST,
-	  user: process.env.REMOTE_USER,
-	  password: process.env.REMOTE_PASSWORD,
-	  database: process.env.REMOTE_DATABASE,
-	  insecureAuth: process.env.REMOTE_INSECUREAUTH
-	});
+	// const connection = mysql.createConnection({
+	//   host: process.env.REMOTE_HOST,
+	//   user: process.env.REMOTE_USER,
+	//   password: process.env.REMOTE_PASSWORD,
+	//   database: process.env.REMOTE_DATABASE,
+	//   insecureAuth: process.env.REMOTE_INSECUREAUTH
+	// });
 // const connection = mysql.createConnection({
 //   host: process.env.LOCAL_HOST,
 //   user: process.env.LOCAL_USER,
@@ -137,16 +137,18 @@ async function createData(create, callback) {
 //   insecureAuth: process.env.LOCAL_INSECUREAUTH
 // });
 
-	connection.connect((err) => {
-	  if (err) {
-	    console.error('Error connecting: ' + err.stack);
+
+	pool.getConnection(function(err, connection) {
+  	  if (err) {
+	    console.error('Error in pool connecting: ' + err.stack);
 	    return;
-	  }
+	  } 
 	  console.log('Connected!');
       console.log(`Creating: INSERT INTO tests (first_var, second_var, third_var) 
 		VALUES ( \'${create.firstVar}\', \'${create.secondVar}\', ${create.thirdVar});`);
 	  connection.query(`INSERT INTO tests (first_var, second_var, third_var) 
 		VALUES (?, ?, ?);`, [create.firstVar, create.secondVar, create.thirdVar], (err, rows, fields) => {
+		  connection.release();
 		  if (err) {
 			console.log(`Failure: ${err}`);
 			callback(err, null);
@@ -162,13 +164,13 @@ async function createData(create, callback) {
 
 async function signUp(signup, callback) {
 
-	const connection = mysql.createConnection({
-	  host: process.env.REMOTE_HOST,
-	  user: process.env.REMOTE_USER,
-	  password: process.env.REMOTE_PASSWORD,
-	  database: process.env.REMOTE_DATABASE,
-	  insecureAuth: process.env.REMOTE_INSECUREAUTH
-	});
+	// const connection = mysql.createConnection({
+	//   host: process.env.REMOTE_HOST,
+	//   user: process.env.REMOTE_USER,
+	//   password: process.env.REMOTE_PASSWORD,
+	//   database: process.env.REMOTE_DATABASE,
+	//   insecureAuth: process.env.REMOTE_INSECUREAUTH
+	// });
 // const connection = mysql.createConnection({
 //   host: process.env.LOCAL_HOST,
 //   user: process.env.LOCAL_USER,
@@ -177,30 +179,40 @@ async function signUp(signup, callback) {
 //   insecureAuth: process.env.LOCAL_INSECUREAUTH
 // });
 
-	connection.connect((err) => {
-	  if (err) {
-	    console.error('Error connecting: ${err.stack}');
+	pool.getConnection(function(err, connection) {
+  	  if (err) {
+	    console.error('Error in pool connecting: ' + err.stack);
 	    return;
-	  }
+	  } 
 	  console.log('Connected!');
-	  const saltRounds = 12;
+	  connection.query(`SELECT * FROM users WHERE username = ?;`, [signup.username], (err, rows, fields) => {
+	  	  connection.release();
+		  if (err) {
+			  console.log(`Failure: ${err}`);
+			  callback(err, null);
+		  } else {
+			  console.log('Success');
+			  callback(null, rows);
+		  }
 
-      bcrypt.hash(signup.password, saltRounds, function(err, hash) {
-        // Store hash in your password DB.
-        console.log(`Pass: ${signup.password}, Hash: ${hash}`);
-        console.log(`Signing up: INSERT INTO users (username, email, passHash) 
-		  VALUES ( \'${signup.username}\', \'${signup.email}\', ${hash});`);
-		  connection.query(`INSERT INTO users (username, email, passHash) 
-			VALUES (?, ?, ?);`, [signup.username, signup.email, hash], (err, rows, fields) => {
-				if (err) {
-				  console.log(`Failure: ${err}`);
-				  callback(err, null);
-				} else {
-				  console.log('Success');
-				  callback(null, rows);
-				}
-		    })
-        });
+		  // const saltRounds = 12;
+	   //    bcrypt.hash(signup.password, saltRounds, function(err, hash) {
+	   //      // Store hash in your password DB.
+	   //      console.log(`Pass: ${signup.password}, Hash: ${hash}`);
+	   //      console.log(`Signing up: INSERT INTO users (username, email, passHash) 
+			 //  VALUES ( \'${signup.username}\', \'${signup.email}\', ${hash});`);
+			 //  connection.query(`INSERT INTO users (username, email, passHash) 
+				// VALUES (?, ?, ?);`, [signup.username, signup.email, hash], (err, rows, fields) => {
+				// 	connection.release();
+				// 	if (err) {
+				// 	  console.log(`Failure: ${err}`);
+				// 	  callback(err, null);
+				// 	} else {
+				// 	  console.log('Success');
+				// 	  callback(null, rows);
+				// 	}
+			 //    })
+	   //      });
 
 	});
 }
@@ -256,9 +268,8 @@ async function signIn(signin, callback) {
 					            { 
 					            	algorithm: 'HS256',
 					          		expiresIn: 60 * 60 
-					          	}
-				        )
-				        callback(null, token);
+					          	})
+				        	callback(null, token);
 				      } else {
 				      	callback('Err', 'Incorrect Password');
 				      }
