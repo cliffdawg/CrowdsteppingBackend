@@ -294,7 +294,7 @@ async function getNumber() {
 
 module.exports = {
 	checkToken,
-	getData,
+	//getData,
 	getGoals,
 	createData,
 	signUp,

@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const {
 	checkToken,
-	getData,
+	//getData,
 	getGoals,
 	createData,
 	signUp,
