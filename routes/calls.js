@@ -6,7 +6,7 @@ const {
 	checkToken,
 	//getData,
 	getGoals,
-	createData,
+	createGoal,
 	signUp,
 	signIn,
 	getNumber
@@ -154,7 +154,7 @@ router.get('/:id', async (req, res, next) => {
 * description: 
 * responses: 
 */
-router.post('/', async (req, res, next) => {
+router.post('/goal', async (req, res, next) => {
 	  checkToken(req, function(err, data) {
 		    if (err) {
 		        // error handling code goes here
@@ -170,7 +170,7 @@ router.post('/', async (req, res, next) => {
 	}, function (req, res, next) {
 
 	try {
-		createData(req.body, function(err, data) {
+		createGoal(req.body, function(err, data) {
           if (err) {
             // error handling code goes here
             console.log(`Error: ${err}`);

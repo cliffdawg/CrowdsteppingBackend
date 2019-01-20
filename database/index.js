@@ -121,7 +121,7 @@ async function getGoals(callback) {
 	});
 }
 
-async function createData(create, callback) {
+async function createGoal(create, callback) {
 
 	// const connection = mysql.createConnection({
 	//   host: process.env.REMOTE_HOST,
@@ -146,10 +146,10 @@ async function createData(create, callback) {
 	    return;
 	  } 
 	  console.log('Connected!');
-      console.log(`Creating: INSERT INTO tests (first_var, second_var, third_var) 
+      console.log(`Creating: INSERT INTO goals (first_var, second_var, third_var) 
 		VALUES ( \'${create.firstVar}\', \'${create.secondVar}\', ${create.thirdVar});`);
-	  connection.query(`INSERT INTO tests (first_var, second_var, third_var) 
-		VALUES (?, ?, ?);`, [create.firstVar, create.secondVar, create.thirdVar], (err, rows, fields) => {
+	  connection.query(`INSERT INTO goals (goal, username, timeStamp) 
+		VALUES (?, ?, ?);`, [create.goal, 'Dummy username', Date()], (err, rows, fields) => {
 		  connection.release();
 		  if (err) {
 			console.log(`Failure: ${err}`);
@@ -318,7 +318,7 @@ module.exports = {
 	checkToken,
 	//getData,
 	getGoals,
-	createData,
+	createGoal,
 	signUp,
 	signIn,
 	getNumber
