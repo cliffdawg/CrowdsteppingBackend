@@ -147,7 +147,7 @@ async function createGoal(create, callback) {
 	  } 
 	  console.log('Connected!');
       console.log(`Creating: INSERT INTO goals (first_var, second_var, third_var) 
-		VALUES ( \'${create.firstVar}\', 'Dummy username', ${create.thirdVar});`);
+		VALUES ( \'${create.goal}\', 'Dummy username', ${create.thirdVar});`);
 	  connection.query(`INSERT INTO goals (goal, username, timeStamp) 
 		VALUES (?, ?, ?);`, [create.goal, 'Dummy username', new Date()], (err, rows, fields) => {
 		  connection.release();
