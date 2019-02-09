@@ -199,7 +199,7 @@ router.post('/goal', async (req, res, next) => {
 * description: 
 * responses: 
 */
-router.post('/', async (req, res, next) => {
+router.post('/goal', async (req, res, next) => {
   	res.json({
 		success: false,
 		message: 'Token cannot be validated!'
