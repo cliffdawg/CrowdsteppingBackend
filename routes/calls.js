@@ -171,20 +171,28 @@ router.post('/goal', async (req, res, next) => {
 
 	try {
 		createGoal(req.body, function(err, data) {
-          if (err) {
+		  // For first entry, the inserting goal query
+          if (err[0]) {
             // error handling code goes here
-            console.log(`Error: ${err}`);
+            console.log(`Insert error: ${err[0]}`);
             res.json({
 				success: false,
-				message: 'Failed to create'
+				message: 'Failed to insert goal'
 			}); 
-            next(err);           
+            next(err[0]);           
+          } else if (err[1]) {
+          	// error handling code goes here
+            console.log(`Goal table error: ${err[1]}`);
+            res.json({
+				success: false,
+				message: `Failed to create goal's table`
+			}); 
           } else {            
             // code to execute on data retrieval
-            console.log(`Data: ${data}`); 
+            console.log(`Data: ${data[0]}`); 
             res.json({
 				success: true,
-				message: 'Succeeded in creating'
+				message: 'Succeeded in goal insertion & creation'
 			});   
           }    
 	    });

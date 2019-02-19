@@ -1,6 +1,7 @@
 'use strict';
 
 const mysql = require('mysql');
+const async = require('async');
 
 require('dotenv').config();
 
@@ -139,27 +140,89 @@ async function createGoal(create, callback) {
 // });
 
 
-	pool.getConnection(function(err, connection) {
-  	  if (err) {
-	    console.error('Error in pool connecting: ' + err.stack);
-	    callback(err, 'Error in pool connecting!');
-	    return;
-	  } 
-	  console.log('Connected!');
-      console.log(`Creating: INSERT INTO goals (first_var, second_var, third_var) 
-		VALUES ( \'${create.goal}\', ${create.username}...`);
-	  connection.query(`INSERT INTO goals (goal, username, timeStamp) 
-		VALUES (?, ?, ?);`, [create.goal, create.username, new Date()], (err, rows, fields) => {
-		  connection.release();
-		  if (err) {
-			console.log(`Failure: ${err}`);
-			callback(err, null);
-	      } else {
-			console.log('Success');
-			callback(null, rows);
-		  }
-	  })
+	// pool.getConnection(function(err, connection) {
+ //  	  if (err) {
+	//     console.error('Error in pool connecting: ' + err.stack);
+	//     callback(err, 'Error in pool connecting!');
+	//     return;
+	//   } 
+	//   console.log('Connected!');
+ //      console.log(`Creating: INSERT INTO goals (first_var, second_var, third_var) 
+	// 	VALUES ( \'${create.goal}\', ${create.username}...`);
+	//   connection.query(`INSERT INTO goals (goal, username, timeStamp) 
+	// 	VALUES (?, ?, ?);`, [create.goal, create.username, new Date()], (err, rows, fields) => {
+	// 	  connection.release();
+	// 	  if (err) {
+	// 		console.log(`Failure: ${err}`);
+	// 		callback(err, null);
+	//       } else {
+	// 		console.log('Success');
+	// 		callback(null, rows);
+	// 	  }
+	//   })
+	// });
 
+	async.parallel([
+    function(parallelCallback) {
+        pool.getConnection(function(err, connection) {
+	  	  if (err) {
+		    console.error('Error in pool connecting: ' + err.stack);
+		    callback(err, 'Error in pool connecting!');
+		    return;
+		  } 
+		  console.log('Connected!');
+	      console.log(`Creating: INSERT INTO goals (first_var, second_var, third_var) 
+			VALUES ( \'${create.goal}\', ${create.username}...`);
+		  connection.query(`INSERT INTO goals (goal, username, timeStamp) 
+			VALUES (?, ?, ?);`, [create.goal, create.username, new Date()], (err, rows, fields) => {
+			  connection.release();
+			  if (err) {
+				console.log(`Failure: ${err}`);
+				parallelCallback(err, null);
+		      } else {
+				console.log('Success');
+				parallelCallback(null, rows);
+			  }
+		  })
+		});
+    },
+    function(parallelCallback) {
+        pool.getConnection(function(err, connection) {
+	  	  if (err) {
+		    console.error('Error in pool connecting: ' + err.stack);
+		    callback(err, 'Error in pool connecting!');
+		    return;
+		  } 
+		  console.log('Connected!');
+	      console.log(`Creating: CREATE TABLE ${create.goal}( id INT(1) unsigned NOT NULL AUTO_INCREMENT, 
+	      	step VARCHAR(500) NOT NULL DEFAULT '', 
+	      	username VARCHAR(50) NOT NULL DEFAULT '', 
+	      	timeStamp TIMESTAMP DEFAULT 0, 
+	      	approved BOOLEAN NOT NULL DEFAULT FALSE,
+	      	votes INT NOT NULL DEFAULT 0,
+	      	PRIMARY KEY (id) ) AUTO_INCREMENT=1 CHARSET=utf8;`);
+		  connection.query(`CREATE TABLE ?( id INT(1) unsigned NOT NULL AUTO_INCREMENT, 
+	      	step VARCHAR(500) NOT NULL DEFAULT '', 
+	      	username VARCHAR(50) NOT NULL DEFAULT '', 
+	      	timeStamp TIMESTAMP DEFAULT 0, 
+	      	approved BOOLEAN NOT NULL DEFAULT FALSE,
+	      	votes INT NOT NULL DEFAULT 0,
+	      	PRIMARY KEY (id) ) AUTO_INCREMENT=1 CHARSET=utf8;`, [create.goal], (err, rows, fields) => {
+			  connection.release();
+			  if (err) {
+				console.log(`Failure: ${err}`);
+				parallelCallback(err, null);
+		      } else {
+				console.log('Success');
+				parallelCallback(null, rows);
+			  }
+		  })
+		});
+    }],
+	// optional callback
+	function(err, results) {
+	    // Errors and results stacked in an array [0],[1]
+	 	callback(err, results);
 	});
 }
 
