@@ -189,7 +189,7 @@ router.post('/goal', async (req, res, next) => {
 			}); 
           } else {            
             // code to execute on data retrieval
-            console.log(`Data: ${data[0]}`); 
+            console.log(`Data: ${data[0]}, successfully inserted/created`); 
             res.json({
 				success: true,
 				message: 'Succeeded in goal insertion & creation'
