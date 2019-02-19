@@ -201,13 +201,13 @@ async function createGoal(create, callback) {
 	      	approved BOOLEAN NOT NULL DEFAULT FALSE,
 	      	votes INT NOT NULL DEFAULT 0,
 	      	PRIMARY KEY (id) ) AUTO_INCREMENT=1 CHARSET=utf8;`);
-		  connection.query(`CREATE TABLE ?( id INT(1) unsigned NOT NULL AUTO_INCREMENT, 
+		  connection.query(`CREATE TABLE ${create.goal}( id INT(1) unsigned NOT NULL AUTO_INCREMENT, 
 	      	step VARCHAR(500) NOT NULL DEFAULT '', 
 	      	username VARCHAR(50) NOT NULL DEFAULT '', 
 	      	timeStamp TIMESTAMP DEFAULT 0, 
 	      	approved BOOLEAN NOT NULL DEFAULT FALSE,
 	      	votes INT NOT NULL DEFAULT 0,
-	      	PRIMARY KEY (id) ) AUTO_INCREMENT=1 CHARSET=utf8;`, [create.goal], (err, rows, fields) => {
+	      	PRIMARY KEY (id) ) AUTO_INCREMENT=1 CHARSET=utf8;`, (err, rows, fields) => {
 			  connection.release();
 			  if (err) {
 				console.log(`Failure: ${err}`);
