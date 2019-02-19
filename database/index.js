@@ -177,10 +177,10 @@ async function createGoal(create, callback) {
 			VALUES (?, ?, ?);`, [create.goal, create.username, new Date()], (err, rows, fields) => {
 			  connection.release();
 			  if (err) {
-				console.log(`Failure: ${err}`);
-				parallelCallback(err, null);
+				console.log(`Goal inserting failure: ${err}`);
+				parallelCallback('Error inserting new goal', null);
 		      } else {
-				console.log('Success');
+				console.log('Success inserting goal!');
 				parallelCallback(null, rows);
 			  }
 		  })
@@ -210,10 +210,10 @@ async function createGoal(create, callback) {
 	      	PRIMARY KEY (id) ) AUTO_INCREMENT=1 CHARSET=utf8;`, [create.goal], (err, rows, fields) => {
 			  connection.release();
 			  if (err) {
-				console.log(`Failure: ${err}`);
-				parallelCallback(err, null);
+				console.log(`Goal tabling failure: ${err}`);
+				parallelCallback('Error creating goal table', null);
 		      } else {
-				console.log('Success');
+				console.log('Success tabling goal!');
 				parallelCallback(null, rows);
 			  }
 		  })
@@ -221,8 +221,11 @@ async function createGoal(create, callback) {
     }],
 	// optional callback
 	function(err, results) {
+		if (err) {
+			callback(err, null);
+		}
 	    // Errors and results stacked in an array [0],[1]
-	 	callback(err, results);
+	 	callback(null, results);
 	});
 }
 
