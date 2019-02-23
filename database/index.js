@@ -173,7 +173,7 @@ async function createGoal(create, callback) {
 		  console.log('Connected!');
 	      console.log(`Creating: INSERT INTO goals (first_var, second_var, third_var) 
 			VALUES ( \'${create.goal}\', ${create.username}...`);
-		  connection.query(`NSERT INTO goals (goal, username, timeStamp) 
+		  connection.query(`INSERT INTO goals (goal, username, timeStamp) 
 			VALUES (?, ?, ?);`, [create.goal, create.username, new Date()], (err, rows, fields) => {
 			  connection.release();
 			  if (err) {
@@ -201,7 +201,7 @@ async function createGoal(create, callback) {
 	      	approved BOOLEAN NOT NULL DEFAULT FALSE,
 	      	votes INT NOT NULL DEFAULT 0,
 	      	PRIMARY KEY (id) ) AUTO_INCREMENT=1 CHARSET=utf8;`);
-		  connection.query(`CREATE TABLE ??( id INT(1) unsigned NOT NULL AUTO_INCREMENT, 
+		  connection.query(`REATE TABLE ??( id INT(1) unsigned NOT NULL AUTO_INCREMENT, 
 	      	step VARCHAR(500) NOT NULL DEFAULT '', 
 	      	username VARCHAR(50) NOT NULL DEFAULT '', 
 	      	timeStamp TIMESTAMP DEFAULT 0, 
