@@ -114,7 +114,7 @@ async function getGoals(callback) {
 		  console.log(`Failure: ${err}`);
 		  callback(err, 'MySQL connection error');
 		} else {
-		  console.log('Success');
+		  console.log('Success getting goals');
 		  console.log(rows);
 		  callback(null, rows);
 		}
@@ -173,7 +173,7 @@ async function createGoal(create, callback) {
 		  console.log('Connected!');
 	      console.log(`Creating: INSERT INTO goals (first_var, second_var, third_var) 
 			VALUES ( \'${create.goal}\', ${create.username}...`);
-		  connection.query(`INSERT INTO goals (goal, username, timeStamp) 
+		  connection.query(`NSERT INTO goals (goal, username, timeStamp) 
 			VALUES (?, ?, ?);`, [create.goal, create.username, new Date()], (err, rows, fields) => {
 			  connection.release();
 			  if (err) {
