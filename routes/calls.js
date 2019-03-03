@@ -174,7 +174,7 @@ router.post('/goal', async (req, res, next) => {
 		  // For first entry, the inserting goal query
           if (err) {
           	// error handling code goes here
-            console.log(`Error: ${err}`);
+            console.log(`Error: ${data}`);
           	if (err == 'Error inserting new goal') {
           		res.json({
 				success: false,
