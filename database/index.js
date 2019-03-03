@@ -306,9 +306,8 @@ async function getSteps(getSteps, callback) {
 				  console.log(`Retrieving goal username failure: ${err}`);
 				  parallelCallback('Couldn\'t retrieve associated username', null);
 			  } else {
-				  	console.log('Retrieving goal username')
-		  			parallelCallback(null, rows);
-				  }
+				  console.log('Retrieving goal username')
+		  		  parallelCallback(null, rows);
 			  }
 			});
 		});
