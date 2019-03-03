@@ -319,7 +319,7 @@ async function getSteps(getSteps, callback) {
 				  console.log(`Success: ${rows}`);
 				  if (Object.keys(rows).length === 0) {
 				  	connection.release();
-				  	console.log('Goal isn't here)
+				  	console.log('Goal isn\'t here');
 				  	callback('Can\'t get goal\'s username', 'Goal doesn\'t exist!');
 				  } else {
 				  	console.log('Proceeding to get goal username')
