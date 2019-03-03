@@ -244,12 +244,12 @@ router.post('/steps', async (req, res, next) => {
           	if (err == 'Can\'t fetch steps') {
           		res.json({
 				success: false,
-				message: 'Failed to insert new goal'
+				message: 'Failed to fetch goal\'s steps'
 				}); 
           	} else {
           		res.json({
 				success: false,
-				message: 'Failed to create goal table'
+				message: 'Failed to find goal\'s associated username'
 				}); 
           	}
             next(err);           

@@ -279,23 +279,14 @@ async function getSteps(getSteps, callback) {
 		    return;
 		  } 
 		  console.log('Connected!');
-		  connection.query(`SELECT * FROM ?;`, [getSteps.goal], (err, rows, fields) => {
+		  connection.query(`SELECT * FROM tree;`, [getSteps.goal], (err, rows, fields) => {
 			  if (err) {
 			  	  connection.release();
 				  console.log(`Fetching steps error: ${err}`);
-				  parallelCallback('Goal table doesn\'t exist!', null);
+				  parallelCallback('Can\'t fetch steps', null);
 			  } else {
-			  	  // Both valid/invalid goal reaches this closure
-				  console.log(`Success: ${rows}`);
-				  if (Object.keys(rows).length === 0) {
-				  	connection.release();
-				  	console.log('Goal table is not here')
-				  	parallelCallback('Goal table is not here', null);
-				  } else {
-				  	console.log('Goal table exists, proceed')
-				  	console.log(rows);
-		  			parallelCallback(null, rows);
-				  }
+			  	  console.log('Goal table steps located')
+		  		  parallelCallback(null, rows);
 			  }
 			});
 		});
@@ -309,23 +300,14 @@ async function getSteps(getSteps, callback) {
 		    return;
 		  } 
 		  console.log('Connected!');
-		  connection.query(`SELECT * FROM goals WHERE goal = ?;`, [getSteps.goal], (err, rows, fields) => {
+		  connection.query(`SELECT * FROM goals WHERE goal = tree;`, [getSteps.goal], (err, rows, fields) => {
 			  if (err) {
 			  	  connection.release();
 				  console.log(`Retrieving goal username failure: ${err}`);
-				  parallelCallback('Could not retrieve associated username', null);
+				  parallelCallback('Couldn\'t retrieve associated username', null);
 			  } else {
-			  	  // Both valid/invalid username reaches this closure
-				  console.log(`Success: ${rows}`);
-				  if (Object.keys(rows).length === 0) {
-				  	connection.release();
-				  	console.log('Goal isn\'t here');
-				  	parallelCallback('Can\'t get goal\'s username', null);
-				  } else {
-				  	console.log('Proceeding to get goal username')
-				  	console.log(rows);
+				  	console.log('Retrieving goal username')
 		  			parallelCallback(null, rows);
-
 				  }
 			  }
 			});
@@ -334,7 +316,6 @@ async function getSteps(getSteps, callback) {
 	// optional callback
 	function(err, results) {
 		if (err) {
-			console.log('Callback with err');
 			callback(err, null);
 		}
 	    // Errors and results stacked in an array [0],[1]
