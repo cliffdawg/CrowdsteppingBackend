@@ -167,7 +167,7 @@ async function createGoal(create, callback) {
         pool.getConnection(function(err, connection) {
 	  	  if (err) {
 		    console.error('Error in pool connecting: ' + err.stack);
-		    callback(err, 'Error in pool connecting!');
+		    parallelCallback('Error in pool connecting!', null);
 		    return;
 		  } 
 		  console.log('Connected!');
@@ -190,7 +190,7 @@ async function createGoal(create, callback) {
         pool.getConnection(function(err, connection) {
 	  	  if (err) {
 		    console.error('Error in pool connecting: ' + err.stack);
-		    callback(err, 'Error in pool connecting!');
+		    parallelCallback('Error in pool connecting!', null);
 		    return;
 		  } 
 		  console.log('Connected!');
@@ -275,26 +275,26 @@ async function getSteps(getSteps, callback) {
         pool.getConnection(function(err, connection) {
 	  	  if (err) {
 		    console.error('Error in pool connecting: ' + err.stack);
-		    callback(err, 'Error in pool connecting!');
+		    parallelCallback('Error in pool connecting!', null);
 		    return;
 		  } 
 		  console.log('Connected!');
 		  connection.query(`SELECT * FROM ?;`, [getSteps.goal], (err, rows, fields) => {
 			  if (err) {
 			  	  connection.release();
-				  console.log(`Failure: ${err}`);
-				  callback(err, 'MySQL connection error');
+				  console.log(`Fetching steps error: ${err}`);
+				  parallelCallback('Goal table doesn\'t exist!', null);
 			  } else {
 			  	  // Both valid/invalid goal reaches this closure
 				  console.log(`Success: ${rows}`);
 				  if (Object.keys(rows).length === 0) {
 				  	connection.release();
 				  	console.log('Goal table is not here')
-				  	callback('Can\'t fetch steps', 'Goal table doesn\'t exist!');
+				  	parallelCallback('Goal table is not here', null);
 				  } else {
 				  	console.log('Goal table exists, proceed')
 				  	console.log(rows);
-		  			callback(null, rows);
+		  			parallelCallback(null, rows);
 				  }
 			  }
 			});
@@ -305,26 +305,26 @@ async function getSteps(getSteps, callback) {
         pool.getConnection(function(err, connection) {
 	  	  if (err) {
 		    console.error('Error in pool connecting: ' + err.stack);
-		    callback(err, 'Error in pool connecting!');
+		    parallelCallback('Error in pool connecting!', null);
 		    return;
 		  } 
 		  console.log('Connected!');
 		  connection.query(`SELECT * FROM goals WHERE goal = ?;`, [getSteps.goal], (err, rows, fields) => {
 			  if (err) {
 			  	  connection.release();
-				  console.log(`Failure: ${err}`);
-				  callback(err, 'MySQL connection error');
+				  console.log(`Retrieving goal username failure: ${err}`);
+				  parallelCallback('Could not retrieve associated username', null);
 			  } else {
 			  	  // Both valid/invalid username reaches this closure
 				  console.log(`Success: ${rows}`);
 				  if (Object.keys(rows).length === 0) {
 				  	connection.release();
 				  	console.log('Goal isn\'t here');
-				  	callback('Can\'t get goal\'s username', 'Goal doesn\'t exist!');
+				  	parallelCallback('Can\'t get goal\'s username', null);
 				  } else {
 				  	console.log('Proceeding to get goal username')
 				  	console.log(rows);
-		  			callback(null, rows);
+		  			parallelCallback(null, rows);
 
 				  }
 			  }
