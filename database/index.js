@@ -495,6 +495,7 @@ module.exports = {
 	checkToken,
 	getGoals,
 	createGoal,
+	getSteps,
 	signUp,
 	signIn,
 	getNumber

@@ -5,8 +5,8 @@ const router = express.Router();
 const {
 	checkToken,
 	getGoals,
-	getSteps,
 	createGoal,
+	getSteps,
 	signUp,
 	signIn,
 	getNumber
