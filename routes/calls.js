@@ -216,11 +216,11 @@ router.post('/goal', async (req, res, next) => {
 
 /**
 * endpoint: /
-* method: GET
+* method: POST
 * description: gets steps for a particular goal
 * responses: 
 */
-router.get('/steps', async (req, res, next) => {
+router.post('/steps', async (req, res, next) => {
 	  checkToken(req, function(err, data) {
 		    if (err) {
 		        // error handling code goes here
@@ -270,11 +270,11 @@ router.get('/steps', async (req, res, next) => {
 
 /**
 * endpoint: /:id
-* method: GET
+* method: POST
 * description: if token authentication fails for getting steps for a goal
 * responses: 
 */
-router.get('/steps', async (req, res, next) => {
+router.post('/steps', async (req, res, next) => {
   	res.json({
 		success: false,
 		message: 'Token cannot be validated!'
