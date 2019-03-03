@@ -334,6 +334,7 @@ async function getSteps(getSteps, callback) {
 	// optional callback
 	function(err, results) {
 		if (err) {
+			console.log('Callback with err');
 			callback(err, null);
 		}
 	    // Errors and results stacked in an array [0],[1]
