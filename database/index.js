@@ -279,7 +279,6 @@ async function getSteps(getSteps, callback) {
 		    return;
 		  } 
 		  console.log('Connected!');
-		  console.log(`Username: ${signup.username}`);
 		  connection.query(`SELECT * FROM ?;`, [getSteps.goal], (err, rows, fields) => {
 			  if (err) {
 			  	  connection.release();
@@ -310,7 +309,6 @@ async function getSteps(getSteps, callback) {
 		    return;
 		  } 
 		  console.log('Connected!');
-		  console.log(`Username: ${signup.username}`);
 		  connection.query(`SELECT * FROM goals WHERE goal = ?;`, [getSteps.goal], (err, rows, fields) => {
 			  if (err) {
 			  	  connection.release();
