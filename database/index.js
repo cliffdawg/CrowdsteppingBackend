@@ -229,6 +229,119 @@ async function createGoal(create, callback) {
 	});
 }
 
+async function getSteps(getSteps, callback) {
+
+	// const connection = mysql.createConnection({
+	//   host: process.env.REMOTE_HOST,
+	//   user: process.env.REMOTE_USER,
+	//   password: process.env.REMOTE_PASSWORD,
+	//   database: process.env.REMOTE_DATABASE,
+	//   insecureAuth: process.env.REMOTE_INSECUREAUTH
+	// });
+// const connection = mysql.createConnection({
+//   host: process.env.LOCAL_HOST,
+//   user: process.env.LOCAL_USER,
+//   password: process.env.LOCAL_PASSWORD,
+//   database: process.env.LOCAL_DATABASE,
+//   insecureAuth: process.env.LOCAL_INSECUREAUTH
+// });
+
+
+	// pool.getConnection(function(err, connection) {
+ //  	  if (err) {
+	//     console.error('Error in pool connecting: ' + err.stack);
+	//     callback(err, 'Error in pool connecting!');
+	//     return;
+	//   } 
+	//   console.log('Connected!');
+ //      console.log(`Creating: INSERT INTO goals (first_var, second_var, third_var) 
+	// 	VALUES ( \'${create.goal}\', ${create.username}...`);
+	//   connection.query(`INSERT INTO goals (goal, username, timeStamp) 
+	// 	VALUES (?, ?, ?);`, [create.goal, create.username, new Date()], (err, rows, fields) => {
+	// 	  connection.release();
+	// 	  if (err) {
+	// 		console.log(`Failure: ${err}`);
+	// 		callback(err, null);
+	//       } else {
+	// 		console.log('Success');
+	// 		callback(null, rows);
+	// 	  }
+	//   })
+	// });
+
+	async.parallel([
+    function(parallelCallback) {
+    	// Get the steps associated with a goal if it exists
+        pool.getConnection(function(err, connection) {
+	  	  if (err) {
+		    console.error('Error in pool connecting: ' + err.stack);
+		    callback(err, 'Error in pool connecting!');
+		    return;
+		  } 
+		  console.log('Connected!');
+		  console.log(`Username: ${signup.username}`);
+		  connection.query(`SELECT * FROM ?;`, [getSteps.goal], (err, rows, fields) => {
+			  if (err) {
+			  	  connection.release();
+				  console.log(`Failure: ${err}`);
+				  callback(err, 'MySQL connection error');
+			  } else {
+			  	  // Both valid/invalid goal reaches this closure
+				  console.log(`Success: ${rows}`);
+				  if (Object.keys(rows).length === 0) {
+				  	connection.release();
+				  	console.log('Goal table is not here')
+				  	callback('Can\'t fetch steps', 'Goal table doesn\'t exist!');
+				  } else {
+				  	console.log('Goal table exists, proceed')
+				  	console.log(rows);
+		  			callback(null, rows);
+				  }
+			  }
+			});
+		});
+    },
+    function(parallelCallback) {
+    	// Get the username associated with a goal if it exists
+        pool.getConnection(function(err, connection) {
+	  	  if (err) {
+		    console.error('Error in pool connecting: ' + err.stack);
+		    callback(err, 'Error in pool connecting!');
+		    return;
+		  } 
+		  console.log('Connected!');
+		  console.log(`Username: ${signup.username}`);
+		  connection.query(`SELECT * FROM goals WHERE goal = ?;`, [getSteps.goal], (err, rows, fields) => {
+			  if (err) {
+			  	  connection.release();
+				  console.log(`Failure: ${err}`);
+				  callback(err, 'MySQL connection error');
+			  } else {
+			  	  // Both valid/invalid username reaches this closure
+				  console.log(`Success: ${rows}`);
+				  if (Object.keys(rows).length === 0) {
+				  	connection.release();
+				  	console.log('Goal isn't here)
+				  	callback('Can\'t get goal\'s username', 'Goal doesn\'t exist!');
+				  } else {
+				  	console.log('Proceeding to get goal username')
+				  	console.log(rows);
+		  			callback(null, rows);
+
+				  }
+			  }
+			});
+		});
+    }],
+	// optional callback
+	function(err, results) {
+		if (err) {
+			callback(err, null);
+		}
+	    // Errors and results stacked in an array [0],[1]
+	 	callback(null, results);
+	});
+}
 
 async function signUp(signup, callback) {
 
@@ -265,7 +378,7 @@ async function signUp(signup, callback) {
 			  console.log(`Success: ${rows}`);
 			  if (Object.keys(rows).length !== 0) {
 			  	connection.release();
-			  	console.log('Data is here')
+			  	console.log('Username is present')
 			  	callback('Can\'t sign up', 'Username already exists!');
 			  } else {
 			  	console.log('No data, proceed')
@@ -382,7 +495,6 @@ async function getNumber() {
 
 module.exports = {
 	checkToken,
-	//getData,
 	getGoals,
 	createGoal,
 	signUp,

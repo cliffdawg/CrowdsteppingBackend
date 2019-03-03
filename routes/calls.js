@@ -15,7 +15,7 @@ const {
 /**
 * endpoint: /
 * method: GET
-* description: 
+* description: testing to get a random number
 * responses: 
 */
 router.get('/', async (req, res, next) => {
@@ -32,7 +32,7 @@ router.get('/', async (req, res, next) => {
 /**
 * endpoint: /:id
 * method: GET
-* description: 
+* description: gets all the goals
 * responses: 
 */
 router.get('/goals', async (req, res, next) => {
@@ -84,7 +84,7 @@ router.get('/goals', async (req, res, next) => {
 /**
 * endpoint: /:id
 * method: GET
-* description: 
+* description: if token authentication fails for getting goals
 * responses: 
 */
 router.get('/goals', async (req, res, next) => {
@@ -94,64 +94,64 @@ router.get('/goals', async (req, res, next) => {
 	});
 });
 
-/**
-* endpoint: /:id
-* method: GET
-* description: 
-* responses: 
-*/
-router.get('/:id', async (req, res, next) => {
-	// Validate token, and continue onwards if successful
-	checkToken(req, function(err, data) {
-		  if (err) {
-		      console.log(`Error: ${err}, ${data}`);
-		      // If token is not validated, skip to next router
-		      next('route');           
-		  } else {            
-		      // If token is validated, pass control to next middleware function in stack
-		      console.log(`Data: ${data}`);   
-		      next();
-		    }    
-		});
-	}, function (req, res, next) {
-		// Get the data for a specified object in database
-		try {
-			getData(req.params.id, function(err, data) {
-		        if (err) {
-		          // error handling code goes here
-		          console.log(`Error: ${err}`); 
-		          next(err);           
-		        } else {            
-		          // code to execute on data retrieval
-		          console.log(`Data: ${data}`); 
-		          res.json({
-		          	success: true,
-		          	data: data
-		          });  
-		        }    
-			  });
-		} catch (err) {
-			next(err);
-		}
-});
+// /**
+// * endpoint: /:id
+// * method: GET
+// * description: gets data for particular goal
+// * responses: 
+// */
+// router.get('/:id', async (req, res, next) => {
+// 	// Validate token, and continue onwards if successful
+// 	checkToken(req, function(err, data) {
+// 		  if (err) {
+// 		      console.log(`Error: ${err}, ${data}`);
+// 		      // If token is not validated, skip to next router
+// 		      next('route');           
+// 		  } else {            
+// 		      // If token is validated, pass control to next middleware function in stack
+// 		      console.log(`Data: ${data}`);   
+// 		      next();
+// 		    }    
+// 		});
+// 	}, function (req, res, next) {
+// 		// Get the data for a specified object in database
+// 		try {
+// 			getData(req.params.id, function(err, data) {
+// 		        if (err) {
+// 		          // error handling code goes here
+// 		          console.log(`Error: ${err}`); 
+// 		          next(err);           
+// 		        } else {            
+// 		          // code to execute on data retrieval
+// 		          console.log(`Data: ${data}`); 
+// 		          res.json({
+// 		          	success: true,
+// 		          	data: data
+// 		          });  
+// 		        }    
+// 			  });
+// 		} catch (err) {
+// 			next(err);
+// 		}
+// });
 
-/**
-* endpoint: /:id
-* method: GET
-* description: 
-* responses: 
-*/
-router.get('/:id', async (req, res, next) => {
-  	res.json({
-		success: false,
-		message: 'Token cannot be validated!'
-	});
-});
+// /**
+// * endpoint: /:id
+// * method: GET
+// * description: if token authentication fails for getting a particular goal
+// * responses: 
+// */
+// router.get('/:id', async (req, res, next) => {
+//   	res.json({
+// 		success: false,
+// 		message: 'Token cannot be validated!'
+// 	});
+// });
 
 /**
 * endpoint: /
 * method: POST
-* description: 
+* description: creates a goal
 * responses: 
 */
 router.post('/goal', async (req, res, next) => {
@@ -203,11 +203,78 @@ router.post('/goal', async (req, res, next) => {
 
 /**
 * endpoint: /:id
-* method: GET
-* description: 
+* method: POST
+* description: if token authentication fails for posting a goal
 * responses: 
 */
 router.post('/goal', async (req, res, next) => {
+  	res.json({
+		success: false,
+		message: 'Token cannot be validated!'
+	});
+});
+
+/**
+* endpoint: /
+* method: GET
+* description: gets steps for a particular goal
+* responses: 
+*/
+router.get('/steps', async (req, res, next) => {
+	  checkToken(req, function(err, data) {
+		    if (err) {
+		        // error handling code goes here
+		        console.log(`Error: ${err}, ${data}`);
+		        // If token is not validated, skip to next router
+		        next('route');           
+		    } else {            
+		        // If token is validated, pass control to next middleware function in stack
+		        console.log(`Data: ${data}`);   
+		        next();
+		      }    
+		});
+	}, function (req, res, next) {
+
+	try {
+		getSteps(req.body, function(err, data) {
+		  // For first entry, the inserting goal query
+          if (err) {
+          	// error handling code goes here
+            console.log(`Error: ${err}`);
+          	if (err == 'Can\'t fetch steps') {
+          		res.json({
+				success: false,
+				message: 'Failed to insert new goal'
+				}); 
+          	} else {
+          		res.json({
+				success: false,
+				message: 'Failed to create goal table'
+				}); 
+          	}
+            next(err);           
+          } else {            
+            // code to execute on data retrieval
+            console.log(`Data: ${data}`); 
+            res.json({
+				success: true,
+				message: 'Succeeded in fetching steps and username',
+				data: data
+			});   
+          }    
+	    });
+	} catch (err) {
+		next(err);
+	}
+});
+
+/**
+* endpoint: /:id
+* method: GET
+* description: if token authentication fails for getting steps for a goal
+* responses: 
+*/
+router.get('/steps', async (req, res, next) => {
   	res.json({
 		success: false,
 		message: 'Token cannot be validated!'
