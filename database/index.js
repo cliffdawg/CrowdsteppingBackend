@@ -300,7 +300,7 @@ async function getSteps(getSteps, callback) {
 		    return;
 		  } 
 		  console.log('Connected!');
-		  connection.query(`SELECT * FROM goals WHERE goal = tree;`, [getSteps.goal], (err, rows, fields) => {
+		  connection.query(`SELECT * FROM goals WHERE goal = ?;`, [getSteps.goal], (err, rows, fields) => {
 			  if (err) {
 			  	  connection.release();
 				  console.log(`Retrieving goal username failure: ${err}`);
