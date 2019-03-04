@@ -255,7 +255,7 @@ router.post('/steps', async (req, res, next) => {
             next(err);           
           } else {            
             // code to execute on data retrieval
-            console.log(`Data: ${data}`); 
+            console.log(`Data: ${data[0]}`); 
             res.json({
 				success: true,
 				message: 'Succeeded in fetching steps and username',
