@@ -279,7 +279,7 @@ async function getSteps(getSteps, callback) {
 		    return;
 		  } 
 		  console.log('Connected!');
-		  connection.query(`SELECT * FROM tree;`, [getSteps.goal], (err, rows, fields) => {
+		  connection.query(`SELECT * FROM ??;`, [getSteps.goal], (err, rows, fields) => {
 			  if (err) {
 			  	  connection.release();
 				  console.log(`Fetching steps error: ${err}`);
