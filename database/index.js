@@ -285,7 +285,8 @@ async function getSteps(getSteps, callback) {
 				  console.log(`Fetching steps error: ${err}`);
 				  parallelCallback('Can\'t fetch steps', null);
 			  } else {
-			  	  console.log(`Goal table steps located, ${rows}`)
+			  	  console.log('Goal table steps located');
+			  	  console.log(rows[0]);
 		  		  parallelCallback(null, rows);
 			  }
 			});
@@ -307,6 +308,7 @@ async function getSteps(getSteps, callback) {
 				  parallelCallback('Couldn\'t retrieve associated username', null);
 			  } else {
 				  console.log('Retrieving goal username')
+				  console.log(rows[0]);
 		  		  parallelCallback(null, rows);
 			  }
 			});
