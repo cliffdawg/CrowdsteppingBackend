@@ -286,7 +286,7 @@ async function getSteps(getSteps, callback) {
 				  parallelCallback('Can\'t fetch steps', null);
 			  } else {
 			  	  console.log('Goal table steps located');
-			  	  console.log(rows[0]);
+			  	  console.log(rows);
 		  		  parallelCallback(null, rows);
 			  }
 			});
