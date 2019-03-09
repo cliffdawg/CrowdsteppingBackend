@@ -199,14 +199,16 @@ async function createGoal(create, callback) {
 	      	username VARCHAR(50) NOT NULL DEFAULT '', 
 	      	timeStamp TIMESTAMP DEFAULT 0, 
 	      	approved BOOLEAN NOT NULL DEFAULT FALSE,
-	      	votes INT NOT NULL DEFAULT 0,
+	      	yesVotes INT NOT NULL DEFAULT 0,
+	      	noVotes INT NOT NULL DEFAULT 0,
 	      	PRIMARY KEY (id) ) AUTO_INCREMENT=1 CHARSET=utf8;`);
 		  connection.query(`CREATE TABLE ??( id INT(1) unsigned NOT NULL AUTO_INCREMENT, 
 	      	step VARCHAR(500) NOT NULL DEFAULT '', 
 	      	username VARCHAR(50) NOT NULL DEFAULT '', 
 	      	timeStamp TIMESTAMP DEFAULT 0, 
 	      	approved BOOLEAN NOT NULL DEFAULT FALSE,
-	      	votes INT NOT NULL DEFAULT 0,
+	      	yesVotes INT NOT NULL DEFAULT 0,
+	      	noVotes INT NOT NULL DEFAULT 0,
 	      	PRIMARY KEY (id) ) AUTO_INCREMENT=1 CHARSET=utf8;`, [create.goal], (err, rows, fields) => {
 			  connection.release();
 			  if (err) {
