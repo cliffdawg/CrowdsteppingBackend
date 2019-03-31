@@ -100,6 +100,7 @@ async function getGoals(callback) {
 //   insecureAuth: process.env.LOCAL_INSECUREAUTH
 // });
 
+	// Release the connection only when you finished using it through the rest of the scope
 	pool.getConnection(function(err, connection) {
   	  if (err) {
 	    console.error('Error in pool connecting: ' + err.stack);
@@ -282,8 +283,9 @@ async function getSteps(getSteps, callback) {
 		  } 
 		  console.log('Connected!');
 		  connection.query(`SELECT * FROM ??;`, [getSteps.goal], (err, rows, fields) => {
+		  	  console.log('Releasing connection');
+		  	  connection.release();
 			  if (err) {
-			  	  connection.release();
 				  console.log(`Fetching steps error: ${err}`);
 				  parallelCallback('Can\'t fetch steps', null);
 			  } else {
@@ -304,8 +306,9 @@ async function getSteps(getSteps, callback) {
 		  } 
 		  console.log('Connected!');
 		  connection.query(`SELECT * FROM goals WHERE goal = ?;`, [getSteps.goal], (err, rows, fields) => {
+		  	  console.log('Releasing connection');
+		  	  connection.release();
 			  if (err) {
-			  	  connection.release();
 				  console.log(`Retrieving goal username failure: ${err}`);
 				  parallelCallback('Couldn\'t retrieve associated username', null);
 			  } else {
@@ -371,7 +374,7 @@ async function signUp(signup, callback) {
 			        console.log(`Pass: ${signup.password}, Hash: ${hash}`);
 			        console.log(`Signing up: INSERT INTO users (username, email, passHash) 
 					  VALUES ( \'${signup.username}\', \'${signup.email}\', ${hash});`);
-					  connection.query(`INSERT INTO users (username, email, passHash) 
+					connection.query(`INSERT INTO users (username, email, passHash) 
 						VALUES (?, ?, ?);`, [signup.username, signup.email, hash], (err, rows, fields) => {
 							connection.release();
 							if (err) {
@@ -428,10 +431,10 @@ async function signIn(signin, callback) {
 	  console.log(`Signing in: SELECT username, email, passHash FROM users WHERE username = \'${signin.username}\';`);
 	  connection.query('SELECT username, email, passHash FROM users WHERE username = ?;', [signin.username], (err, rows, fields) => {
 	  		connection.release();
-			try {  
+			//try {  
 			  if (err) {
 				console.log(`Failure: ${err}`);
-				callback('Err', 'User doesn\'t exist');
+				callback(err, 'User doesn\'t exist');
 		      } else {
 				console.log(`Success: ${rows[0].passHash}`);
 				// Compare hashed pass with given pass
@@ -455,16 +458,99 @@ async function signIn(signin, callback) {
 					          		expiresIn: 60 * 60 
 					          	})
 				        	callback(null, token);
-				      } else {
-				      	callback('Err', 'Incorrect Password');
-				      }
+					      } else {
+					      	callback('Error', 'Incorrect Password');
+					      }
 					}
 				    
 				});
 			  }
-			} catch (err) {
-				callback(err, 'Username has no match');
-			}
+			// } catch (err) {
+			// 	callback(err, 'Username has no match');
+			// }
+	  })
+	});
+
+}
+
+async function patchStep(specificStep, increase) {
+
+	// const connection = mysql.createConnection({
+	//   host: process.env.REMOTE_HOST,
+	//   user: process.env.REMOTE_USER,
+	//   password: process.env.REMOTE_PASSWORD,
+	//   database: process.env.REMOTE_DATABASE,
+	//   insecureAuth: process.env.REMOTE_INSECUREAUTH
+	// });
+// const connection = mysql.createConnection({
+//   host: process.env.LOCAL_HOST,
+//   user: process.env.LOCAL_USER,
+//   password: process.env.LOCAL_PASSWORD,
+//   database: process.env.LOCAL_DATABASE,
+//   insecureAuth: process.env.LOCAL_INSECUREAUTH
+// });
+
+	pool.getConnection(function(err, connection) {
+  	  if (err) {
+	    console.error('Error in pool connecting: ' + err.stack);
+	    callback('Error in pool connecting!', null);
+	    return;
+	  } 
+	  console.log('Pool connected!');
+
+	  console.log(`Finding goal: SELECT * FROM goals WHERE goal = \'${specificStep.goal}\';`);
+
+	  connection.query('SELECT * FROM goals WHERE goal = ?;', [specificStep.goal], (err, rows, fields) => {
+			//try {  
+			  if (err) {
+			  	connection.release();
+				console.log(`Failure: ${err}`);
+				callback('Goal doesn\'t exist', null);
+		      } else {
+		      	console.log(`Success: ${rows[0].goal}`);
+				console.log(`Finding step: SELECT * FROM ${rows[0].goal} WHERE step = \'${specificStep.step}\';`);
+				connection.query('SELECT * FROM ? WHERE step = ?;', [specificStep.goal, specificStep.step], (err, rows, fields) => {
+					//try {  
+					  if (err) {
+					  	connection.release();
+						console.log(`Failure: ${err}`);
+						callback('Step doesn\'t exist', null);
+				      } else {
+						// Increment or decrement the count based on endorse boolean
+						if (specificStep.endorsed) {
+							console.log(`UPDATE ${specificStep.goal} SET yesVotes=yesVotes+1 WHERE step = \'${specificStep.step}\';`);
+							connection.query('UPDATE ? SET yesVotes=yesVotes+1 WHERE step = ?;', [specificStep.goal, specificStep.step], (err, rows, fields) => {
+							  	connection.release();
+								if (err) {
+								  console.log(`Failure: ${err}, failed to increment yesVotes for ${specificStep.goal}, ${specificStep.step}`);
+								  callback('Failed to increment yesVotes', null);
+								} else {
+								  console.log(`Success incrementing yesVotes for ${specificStep.goal}, ${specificStep.step}`);
+								  callback(null, 'Success incrementing yesVotes');
+								}
+							})
+						} else {
+							console.log(`UPDATE ${specificStep.goal} SET noVotes=noVotes+1 WHERE step = \'${specificStep.step}\';`);
+							connection.query('UPDATE ? SET noVotes=noVotes+1 WHERE step = ?;', [specificStep.goal, specificStep.step], (err, rows, fields) => {
+							  	connection.release();
+								if (err) {
+								  console.log(`Failure: ${err}, failed to increment noVotes for ${specificStep.goal}, ${specificStep.step}`);
+								  callback('Failed to increment noVotes', null);
+								} else {
+								  console.log(`Success incrementing noVotes for ${specificStep.goal}, ${specificStep.step}`);
+								  callback(null, 'Success incrementing noVotes');
+								}
+							})
+						}
+					  }
+					// } catch (err) {
+					// 	callback(err, 'Username has no match');
+					// }
+			  	})
+			  }
+			// } catch (err) {
+			// 	callback(err, 'Username has no match');
+			// }
 	  })
 	});
 
@@ -483,5 +569,6 @@ module.exports = {
 	getSteps,
 	signUp,
 	signIn,
+	patchStep,
 	getNumber
 };

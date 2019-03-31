@@ -9,6 +9,7 @@ const {
 	getSteps,
 	signUp,
 	signIn,
+	patchStep,
 	getNumber
 } = require('../database/index.js');
 
@@ -60,7 +61,7 @@ router.get('/goals', async (req, res, next) => {
 				      success: false,
 				      message: data
 				  });
-				  //next(err);          
+				  next(err);          
 		        } else {            
 		          // code to execute on data retrieval
 		          console.log(`Data: ${data}`); 
@@ -197,6 +198,10 @@ router.post('/goal', async (req, res, next) => {
           }    
 	    });
 	} catch (err) {
+		res.json({
+		    success: false,
+		    message: 'Cannot create goal!'
+		});
 		next(err);
 	}
 });
@@ -243,15 +248,20 @@ router.post('/steps', async (req, res, next) => {
             console.log(`Error: ${err}`);
           	if (err == 'Can\'t fetch steps') {
           		res.json({
-				success: false,
-				message: 'Failed to fetch goal\'s steps'
+					success: false,
+					message: 'Failed to fetch goal\'s steps'
+				}); 
+          	} else if (err == 'Couldn\'t retrieve associated username') {
+          		res.json({
+					success: false,
+					message: 'Failed to find goal\'s associated username'
 				}); 
           	} else {
-          		res.json({
-				success: false,
-				message: 'Failed to find goal\'s associated username'
+              	res.json({
+					success: false,
+					message: 'Error in pool connecting'
 				}); 
-          	}
+            }
             next(err);           
           } else {            
             // code to execute on data retrieval
@@ -264,6 +274,10 @@ router.post('/steps', async (req, res, next) => {
           }    
 	    });
 	} catch (err) {
+		res.json({
+		    success: false,
+		    message: 'Cannot get steps for goal!'
+		});
 		next(err);
 	}
 });
@@ -275,6 +289,92 @@ router.post('/steps', async (req, res, next) => {
 * responses: 
 */
 router.post('/steps', async (req, res, next) => {
+  	res.json({
+		success: false,
+		message: 'Token cannot be validated!'
+	});
+});
+
+/**
+* endpoint: /
+* method: PATCH
+* description: increments or decrements count for a specific step
+* responses: 
+*/
+router.patch('/step', async (req, res, next) => {
+	  checkToken(req, function(err, data) {
+		    if (err) {
+		        // error handling code goes here
+		        console.log(`Error: ${err}, ${data}`);
+		        // If token is not validated, skip to next router
+		        next('route');           
+		    } else {            
+		        // If token is validated, pass control to next middleware function in stack
+		        console.log(`Data: ${data}`);   
+		        next();
+		      }    
+		});
+	}, function (req, res, next) {
+
+	try {
+		getGoals(function(err, data) {
+	        if (err) {
+	          // error handling code goes here
+		      console.log(`Error: ${err}, ${data}`); 
+			  if (err == 'Goal doesn\'t exist') {
+          		res.json({
+				  success: false,
+				  message: 'Failed to find a goal that matches'
+				}); 
+	          } else if (err == 'Step doesn\'t exist') {
+	          	res.json({
+				  success: false,
+				  message: 'Failed to find a step that matches'
+				}); 
+              } else if (err == 'Failed to increment yesVotes') {
+              	res.json({
+				  success: false,
+				  message: 'Failed to endorse step'
+				}); 
+              } else if (err == 'Failed to increment noVotes') {
+              	res.json({
+				  success: false,
+				  message: 'Failed to oppose step'
+				}); 
+              } else {
+              	res.json({
+				  success: false,
+				  message: 'Error in pool connecting'
+				}); 
+              }
+	          next(err);           
+	        } else {            
+	          // code to execute on data retrieval
+	          console.log(`Data: ${data}`); 
+	          // The data received here is a packet of rows whose values
+	          // can be accessed with property ID's
+	          res.json({
+	           	success: true,
+	         	data: data
+	          });  
+	        }    
+		  });
+	} catch (err) {
+		res.json({
+		    success: false,
+		    message: 'Cannot patch step count!'
+		});
+		next(err);
+	}
+});
+
+/**
+* endpoint: /:id
+* method: PATCH
+* description: increments or decrements count for a specific step
+* responses: 
+*/
+router.patch('/step', async (req, res, next) => {
   	res.json({
 		success: false,
 		message: 'Token cannot be validated!'
@@ -310,6 +410,10 @@ router.post('/signup', async (req, res, next) => {
           }    
 	    });
 	} catch (err) {
+		res.json({
+		    success: false,
+		    message: 'Cannot sign up!'
+		});
 		next(err);
 	}
 });
