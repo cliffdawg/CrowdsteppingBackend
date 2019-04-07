@@ -302,7 +302,7 @@ router.post('/steps', async (req, res, next) => {
 * responses: 
 */
 router.patch('/step', async (req, res, next) => {
-	  console.log(`${req.goal}, ${req.step}, ${req.endorsed}`);
+	  console.log(`Patch in backend, ${req.goal}, ${req.step}, ${req.endorsed}`);
 	  checkToken(req, function(err, data) {
 		    if (err) {
 		        // error handling code goes here
