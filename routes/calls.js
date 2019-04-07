@@ -318,7 +318,7 @@ router.patch('/step', async (req, res, next) => {
 	}, function (req, res, next) {
 
 	try {
-		getGoals(function(err, data) {
+		patchStep(function(err, data) {
 	        if (err) {
 	          // error handling code goes here
 		      console.log(`Error: ${err}, ${data}`); 
