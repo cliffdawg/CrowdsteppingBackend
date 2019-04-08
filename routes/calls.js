@@ -318,7 +318,7 @@ router.patch('/step', async (req, res, next) => {
 	}, function (req, res, next) {
 
 	try {
-		patchStep(function(err, data) {
+		patchStep(req.body, function(err, data) {
 	        if (err) {
 	          // error handling code goes here
 		      console.log(`Error: ${err}, ${data}`); 
