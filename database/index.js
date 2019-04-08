@@ -500,7 +500,7 @@ async function patchStep(specificStep, callback) {
 
 	  console.log(`Finding goal: SELECT * FROM goals WHERE goal = \'${specificStep.goal}\';`);
 
-	  connection.query('SELECT * FROM goals WHERE goal = ?;', [specificStep.goal], (err, rows, fields) => {
+	  connection.query('SELECT * ROM goals WHERE goal = ?;', [specificStep.goal], (err, rows, fields) => {
 			//try {  
 			  if (err) {
 			  	connection.release();
