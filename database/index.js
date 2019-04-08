@@ -531,7 +531,7 @@ async function patchStep(specificStep, callback) {
 							})
 						} else {
 							console.log(`UPDATE ${specificStep.goal} SET noVotes=noVotes+1 WHERE step = \'${specificStep.step}\';`);
-							connection.query('UPDATE ? SET noVotes=noVotes+1 WHERE step = ?;', [specificStep.goal, specificStep.step], (err, rows, fields) => {
+							connection.query('UPDATE ?? SET noVotes=noVotes+1 WHERE step = ?;', [specificStep.goal, specificStep.step], (err, rows, fields) => {
 							  	connection.release();
 								if (err) {
 								  console.log(`Failure: ${err}, failed to increment noVotes for ${specificStep.goal}, ${specificStep.step}`);
