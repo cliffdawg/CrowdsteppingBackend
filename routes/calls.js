@@ -356,7 +356,7 @@ router.patch('/step', async (req, res, next) => {
 	          // can be accessed with property ID's
 	          res.json({
 	           	success: true,
-	         	data: data
+	         	message: data
 	          });  
 	        }    
 		  });
