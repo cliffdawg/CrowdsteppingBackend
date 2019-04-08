@@ -473,7 +473,7 @@ async function signIn(signin, callback) {
 
 }
 
-async function patchStep(specificStep, increase) {
+async function patchStep(specificStep, callback) {
 
 	// const connection = mysql.createConnection({
 	//   host: process.env.REMOTE_HOST,
@@ -500,7 +500,7 @@ async function patchStep(specificStep, increase) {
 
 	  console.log(`Finding goal: SELECT * FROM goals WHERE goal = \'${specificStep.goal}\';`);
 
-	  connection.query('SELECT * FROM goals WHERE goal = ?;', [specificStep.goal], (err, rows, fields) => {
+	  connection.query('SELECT * ROM goals WHERE goal = ?;', [specificStep.goal], (err, rows, fields) => {
 			//try {  
 			  if (err) {
 			  	connection.release();
@@ -509,7 +509,7 @@ async function patchStep(specificStep, increase) {
 		      } else {
 		      	console.log(`Success: ${rows[0].goal}`);
 				console.log(`Finding step: SELECT * FROM ${rows[0].goal} WHERE step = \'${specificStep.step}\';`);
-				connection.query('SELECT * FROM ?? WHERE step = ?;', [specificStep.goal, specificStep.step], (err, rows, fields) => {
+				connection.query('SELECT * FROM ? WHERE step = ?;', [specificStep.goal, specificStep.step], (err, rows, fields) => {
 					//try {  
 					  if (err) {
 					  	connection.release();
@@ -519,7 +519,7 @@ async function patchStep(specificStep, increase) {
 						// Increment or decrement the count based on endorse boolean
 						if (specificStep.endorsed) {
 							console.log(`UPDATE ${specificStep.goal} SET yesVotes=yesVotes+1 WHERE step = \'${specificStep.step}\';`);
-							connection.query('UPDATE ?? SET yesVotes=yesVotes+1 WHERE step = ?;', [specificStep.goal, specificStep.step], (err, rows, fields) => {
+							connection.query('UPDATE ? SET yesVotes=yesVotes+1 WHERE step = ?;', [specificStep.goal, specificStep.step], (err, rows, fields) => {
 							  	connection.release();
 								if (err) {
 								  console.log(`Failure: ${err}, failed to increment yesVotes for ${specificStep.goal}, ${specificStep.step}`);
