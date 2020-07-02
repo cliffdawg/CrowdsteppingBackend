@@ -437,7 +437,11 @@ async function signIn(signin, callback) {
 			//try {  
 			  if (err || rows.length == 0) {
 				console.log(`Failure: ${err}`);
-				callback(err, 'User doesn\'t exist');
+				if (err) {
+					callback(err, 'User doesn\'t exist');
+				} else {
+			    	callback('Placeholder error', 'User doesn\'t exist');
+				}
 		      } else {
 				console.log(`Success: ${rows[0].passHash}`);
 				// Compare hashed pass with given pass
