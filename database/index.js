@@ -435,7 +435,7 @@ async function signIn(signin, callback) {
 	  		connection.release();
 	  		console.log(`Rows count: ${rows.length}`);
 			//try {  
-			  if (err) {
+			  if (err || rows.length == 0) {
 				console.log(`Failure: ${err}`);
 				callback(err, 'User doesn\'t exist');
 		      } else {
