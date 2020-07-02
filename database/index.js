@@ -1,5 +1,7 @@
 'use strict';
 
+// Heroku looks for Procfile, which explicitly declares what command should be executed to start the app
+
 const mysql = require('mysql');
 const async = require('async');
 
@@ -431,6 +433,7 @@ async function signIn(signin, callback) {
 	  console.log(`Signing in: SELECT username, email, passHash FROM users WHERE username = \'${signin.username}\';`);
 	  connection.query('SELECT username, email, passHash FROM users WHERE username = ?;', [signin.username], (err, rows, fields) => {
 	  		connection.release();
+	  		console.log(`Rows count: ${rows.count}`);
 			//try {  
 			  if (err) {
 				console.log(`Failure: ${err}`);

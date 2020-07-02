@@ -1,3 +1,4 @@
-# Ignore .env credentials file
+# Don't ignore .env credentials file for backend because need it to work, but do ignore when pushing source code to GitHub
 
+# Heroku automatically installs dependencies during build, node_modules is a lot of data to push
 node_modules
