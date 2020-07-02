@@ -8,7 +8,7 @@ const async = require('async');
 require('dotenv').config();
 
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const pool  = mysql.createPool({
   host: process.env.REMOTE_HOST,
