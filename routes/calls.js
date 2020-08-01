@@ -13,6 +13,8 @@ const {
 	getNumber
 } = require('../database/index.js');
 
+// GET is used to retrieve remote data, POST is used to insert/update remote data
+
 /**
 * endpoint: /
 * method: GET
@@ -294,6 +296,92 @@ router.post('/steps', async (req, res, next) => {
 		message: 'Token cannot be validated!'
 	});
 });
+
+
+
+
+
+
+/**
+* endpoint: /
+* method: POST
+* description: adds step for a particular goal
+* responses: 
+*/
+router.post('/step', async (req, res, next) => {
+	  checkToken(req, function(err, data) {
+		    if (err) {
+		        // error handling code goes here
+		        console.log(`Error: ${err}, ${data}`);
+		        // If token is not validated, skip to next router
+		        next('route');           
+		    } else {            
+		        // If token is validated, pass control to next middleware function in stack
+		        console.log(`Data: ${data}`);   
+		        next();
+		      }    
+		});
+	}, function (req, res, next) {
+
+	try {
+		createStep(req.body, function(err, data) {
+		  // For first entry, the inserting goal query
+          if (err) {
+          	// error handling code goes here
+            console.log(`Error: ${err}`);
+          	if (err == 'Can\'t create step') {
+          		res.json({
+					success: false,
+					message: 'Failed to create goal\'s step'
+				}); 
+          	} else if (err == 'Couldn\'t retrieve associated username') {
+          		res.json({
+					success: false,
+					message: 'Failed to find goal\'s associated username'
+				}); 
+          	} else {
+              	res.json({
+					success: false,
+					message: 'Error in pool connecting'
+				}); 
+            }
+            next(err);           
+          } else {            
+            // code to execute on data retrieval
+            console.log(`Data: ${data}`); 
+            res.json({
+				success: true,
+				message: 'Succeeded in fetching steps and username',
+				data: data
+			});   
+          }    
+	    });
+	} catch (err) {
+		res.json({
+		    success: false,
+		    message: 'Cannot get steps for goal!'
+		});
+		next(err);
+	}
+});
+
+/**
+* endpoint: /:id
+* method: POST
+* description: if token authentication fails for adding step for a goal
+* responses: 
+*/
+router.post('/step', async (req, res, next) => {
+  	res.json({
+		success: false,
+		message: 'Token cannot be validated!'
+	});
+});
+
+
+
+
+
 
 /**
 * endpoint: /

@@ -2,6 +2,8 @@
 
 // Heroku looks for Procfile, which explicitly declares what command should be executed to start the app
 
+// Can't use 'index' as a column in a MySQL table because it causes error
+
 const mysql = require('mysql');
 const async = require('async');
 
@@ -197,18 +199,22 @@ async function createGoal(create, callback) {
 		    return;
 		  } 
 		  console.log('Connected!');
+		  // Create the specific table for the goal that will hold its steps
 	      console.log(`Creating: CREATE TABLE ${create.goal}( id INT(1) unsigned NOT NULL AUTO_INCREMENT, 
 	      	step VARCHAR(500) NOT NULL DEFAULT '', 
 	      	username VARCHAR(50) NOT NULL DEFAULT '', 
 	      	timeStamp TIMESTAMP DEFAULT 0, 
+	      	stepsIndex DECIMAL(65,55) NOT NULL DEFAULT 0,
 	      	approved BOOLEAN NOT NULL DEFAULT FALSE,
 	      	yesVotes INT NOT NULL DEFAULT 0,
 	      	noVotes INT NOT NULL DEFAULT 0,
 	      	PRIMARY KEY (id) ) AUTO_INCREMENT=1 CHARSET=utf8;`);
+	      // The 'approved' column does not mean it has a default value of FALSE for every step, but rather for the table template
 		  connection.query(`CREATE TABLE ??( id INT(1) unsigned NOT NULL AUTO_INCREMENT, 
 	      	step VARCHAR(500) NOT NULL DEFAULT '', 
 	      	username VARCHAR(50) NOT NULL DEFAULT '', 
 	      	timeStamp TIMESTAMP DEFAULT 0, 
+	      	stepsIndex DECIMAL(65,55) NOT NULL DEFAULT 0,
 	      	approved BOOLEAN NOT NULL DEFAULT FALSE,
 	      	yesVotes INT NOT NULL DEFAULT 0,
 	      	noVotes INT NOT NULL DEFAULT 0,
@@ -480,6 +486,75 @@ async function signIn(signin, callback) {
 
 }
 
+async function createStep(prospectiveStep, callback) {
+
+
+
+	/*CREATE TABLE stepIndexes (id INT unsigned NOT NULL AUTO_INCREMENT, step VARCHAR(150) NOT NULL DEFAULT '', stepIndex DECIMAL(30,20) NOT NULL DEFAULT 0, PRIMARY KEY (id) );*/
+
+
+
+
+	// const connection = mysql.createConnection({
+	//   host: process.env.REMOTE_HOST,
+	//   user: process.env.REMOTE_USER,
+	//   password: process.env.REMOTE_PASSWORD,
+	//   database: process.env.REMOTE_DATABASE,
+	//   insecureAuth: process.env.REMOTE_INSECUREAUTH
+	// });
+// const connection = mysql.createConnection({
+//   host: process.env.LOCAL_HOST,
+//   user: process.env.LOCAL_USER,
+//   password: process.env.LOCAL_PASSWORD,
+//   database: process.env.LOCAL_DATABASE,
+//   insecureAuth: process.env.LOCAL_INSECUREAUTH
+// });
+
+	pool.getConnection(function(err, connection) {
+  	  if (err) {
+	    console.error('Error in pool connecting: ' + err.stack);
+	    callback('Error in pool connecting!', null);
+	    return;
+	  } 
+	  console.log('Pool connected!');
+
+	  console.log(`Finding goal: SELECT * FROM goals WHERE goal = \'${prospectiveStep.goal}\';`);
+
+	  connection.query('SELECT * FROM goals WHERE goal = ?;', [prospectiveStep.goal], (err, rows, fields) => {
+			//try {  
+			  if (err) {
+			  	connection.release();
+				console.log(`Failure: ${err}`);
+				callback('Goal doesn\'t exist', null);
+		      } else {
+		      	console.log(`Success: ${rows[0].goal}`);
+				console.log(`Creating: INSERT INTO ${rows[0].goal} (step, username, timeStamp, stepsIndex, approved, yesVotes, noVotes) 
+			VALUES ( \'${prospectiveStep.step}\', ${prospectiveStep.username}...`);
+
+				connection.query(`INSERT INTO ? (step, username, timeStamp, stepsIndex, approved, yesVotes, noVotes) 
+						VALUES (?, ?, ?, ?, ?, ?);`, [rows[0].goal, prospectiveStep.step, prospectiveStep.username, new Date(), prospectiveStep.stepsIndex, 1, 1, 0], (err, rows, fields) => {
+					//try {  
+			  			if (err) {
+						  console.log(`Goal inserting failure: ${err}`);
+						  parallelCallback('Error inserting new goal', null);
+		      			} else {
+						  console.log('Success inserting goal!');
+						  parallelCallback(null, rows);
+			  			}
+					// } catch (err) {
+					// 	callback(err, 'Username has no match');
+					// }
+			  	})
+			  }
+			// } catch (err) {
+			// 	callback(err, 'Username has no match');
+			// }
+	  })
+	});
+
+}
+
+
 async function patchStep(specificStep, callback) {
 
 	// const connection = mysql.createConnection({
@@ -562,6 +637,8 @@ async function patchStep(specificStep, callback) {
 	});
 
 }
+
+// check duplicates needed for goals/s teps
 
 async function getNumber() {
 	console.log('Number');
