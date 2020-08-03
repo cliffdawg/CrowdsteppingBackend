@@ -529,16 +529,16 @@ async function createStep(prospectiveStep, callback) {
 		      } else {
 		      	console.log(`Success: ${rows[0].goal}`);
 				console.log(`Creating: INSERT INTO ${rows[0].goal} (step, username, timeStamp, stepsIndex, approved, yesVotes, noVotes) 
-			VALUES ( \'${prospectiveStep.step}\', ${prospectiveStep.username}...`);
+			VALUES ( \'${prospectiveStep.step}\', ${prospectiveStep.username}, ${prospectiveStep.stepsIndex}, true...`);
 
 				connection.query(`INSERT INTO ? (step, username, timeStamp, stepsIndex, approved, yesVotes, noVotes) 
-						VALUES (?, ?, ?, ?, ?, ?);`, [rows[0].goal, prospectiveStep.step, prospectiveStep.username, new Date(), prospectiveStep.stepsIndex, 1, 1, 0], (err, rows, fields) => {
+						VALUES (?, ?, ?, ?, ?, ?, ?);`, [rows[0].goal, prospectiveStep.step, prospectiveStep.username, new Date(), prospectiveStep.stepsIndex, 1, 1, 0], (err, rows, fields) => {
 					//try {  
 			  			if (err) {
-						  console.log(`Goal inserting failure: ${err}`);
-						  parallelCallback('Error inserting new goal', null);
+						  console.log(`Step inserting failure: ${err}`);
+						  parallelCallback('Error inserting new step', null);
 		      			} else {
-						  console.log('Success inserting goal!');
+						  console.log('Success inserting step!');
 						  parallelCallback(null, rows);
 			  			}
 					// } catch (err) {
@@ -653,6 +653,7 @@ module.exports = {
 	getSteps,
 	signUp,
 	signIn,
+	createStep,
 	patchStep,
 	getNumber
 };

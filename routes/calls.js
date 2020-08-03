@@ -9,6 +9,7 @@ const {
 	getSteps,
 	signUp,
 	signIn,
+	createStep,
 	patchStep,
 	getNumber
 } = require('../database/index.js');
@@ -183,12 +184,17 @@ router.post('/goal', async (req, res, next) => {
 				success: false,
 				message: 'Failed to insert new goal'
 				}); 
-          	} else {
+          	} else if (err == 'Error creating goal table') {
           		res.json({
 				success: false,
 				message: 'Failed to create goal table'
 				}); 
-          	}
+          	} else {
+              	res.json({
+					success: false,
+					message: 'Error in pool connecting'
+				}); 
+            }
             next(err);           
           } else {            
             // code to execute on data retrieval
@@ -329,15 +335,15 @@ router.post('/step', async (req, res, next) => {
           if (err) {
           	// error handling code goes here
             console.log(`Error: ${err}`);
-          	if (err == 'Can\'t create step') {
+          	if (err == 'Goal doesn\'t exist') {
           		res.json({
 					success: false,
-					message: 'Failed to create goal\'s step'
+					message: 'Failed to find step\'s associated goal'
 				}); 
-          	} else if (err == 'Couldn\'t retrieve associated username') {
+          	} else if (err == 'Error inserting new step') {
           		res.json({
 					success: false,
-					message: 'Failed to find goal\'s associated username'
+					message: 'Failed to insert new step'
 				}); 
           	} else {
               	res.json({
@@ -351,7 +357,7 @@ router.post('/step', async (req, res, next) => {
             console.log(`Data: ${data}`); 
             res.json({
 				success: true,
-				message: 'Succeeded in fetching steps and username',
+				message: 'Succeeded in creating step',
 				data: data
 			});   
           }    
@@ -359,7 +365,7 @@ router.post('/step', async (req, res, next) => {
 	} catch (err) {
 		res.json({
 		    success: false,
-		    message: 'Cannot get steps for goal!'
+		    message: 'Cannot create step!'
 		});
 		next(err);
 	}
