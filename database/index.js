@@ -523,6 +523,7 @@ async function createStep(prospectiveStep, callback) {
 	  connection.query('SELECT * FROM goals WHERE goal = ?;', [prospectiveStep.goal], (err, rows, fields) => {
 			//try {  
 			  if (err) {
+			  	console.log('Releasing connection');
 			  	connection.release();
 				console.log(`Failure: ${err}`);
 				callback('Goal doesn\'t exist', null);
@@ -533,13 +534,15 @@ async function createStep(prospectiveStep, callback) {
 
 				connection.query(`INSERT INTO ? (step, username, timeStamp, stepsIndex, approved, yesVotes, noVotes) 
 						VALUES (?, ?, ?, ?, ?, ?, ?);`, [rows[0].goal, prospectiveStep.step, prospectiveStep.username, new Date(), prospectiveStep.stepsIndex, 1, 1, 0], (err, rows, fields) => {
-					//try {  
+					//try {
+						console.log('Releasing connection');
+		  	  			connection.release();  
 			  			if (err) {
 						  console.log(`Step inserting failure: ${err}`);
-						  parallelCallback('Error inserting new step', null);
+						  callback('Error inserting new step', null);
 		      			} else {
 						  console.log('Success inserting step!');
-						  parallelCallback(null, rows);
+						  callback(null, rows);
 			  			}
 					// } catch (err) {
 					// 	callback(err, 'Username has no match');
