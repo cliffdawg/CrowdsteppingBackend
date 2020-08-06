@@ -290,7 +290,7 @@ async function getSteps(getSteps, callback) {
 		    return;
 		  } 
 		  console.log('Connected!');
-		  connection.query(`SELECT * FROM ??;`, [getSteps.goal], (err, rows, fields) => {
+		  connection.query(`SELECT * FROM ?? ORDER BY stepsIndex;`, [getSteps.goal], (err, rows, fields) => {
 		  	  console.log('Releasing connection');
 		  	  connection.release();
 			  if (err) {
@@ -487,13 +487,6 @@ async function signIn(signin, callback) {
 }
 
 async function createStep(prospectiveStep, callback) {
-
-
-
-	/*CREATE TABLE stepIndexes (id INT unsigned NOT NULL AUTO_INCREMENT, step VARCHAR(150) NOT NULL DEFAULT '', stepIndex DECIMAL(30,20) NOT NULL DEFAULT 0, PRIMARY KEY (id) );*/
-
-
-
 
 	// const connection = mysql.createConnection({
 	//   host: process.env.REMOTE_HOST,

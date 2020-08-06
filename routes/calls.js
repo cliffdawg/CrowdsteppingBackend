@@ -303,11 +303,6 @@ router.post('/steps', async (req, res, next) => {
 	});
 });
 
-
-
-
-
-
 /**
 * endpoint: /
 * method: POST
@@ -383,11 +378,6 @@ router.post('/step', async (req, res, next) => {
 		message: 'Token cannot be validated!'
 	});
 });
-
-
-
-
-
 
 /**
 * endpoint: /
