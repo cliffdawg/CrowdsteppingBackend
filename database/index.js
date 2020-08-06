@@ -1,7 +1,7 @@
 'use strict';
 
 // Heroku looks for Procfile, which explicitly declares what command should be executed to start the app
-
+// ?? in query is for ids, ? is for values
 // Can't use 'index' as a column in a MySQL table because it causes error
 
 const mysql = require('mysql');
@@ -532,7 +532,8 @@ async function createStep(prospectiveStep, callback) {
 				console.log(`Creating: INSERT INTO ${rows[0].goal} (step, username, timeStamp, stepsIndex, approved, yesVotes, noVotes) 
 			VALUES ( \'${prospectiveStep.step}\', ${prospectiveStep.username}, ${prospectiveStep.stepsIndex}, true...`);
 
-				connection.query(`INSERT INTO ? (step, username, timeStamp, stepsIndex, approved, yesVotes, noVotes) 
+				// 
+				connection.query(`INSERT INTO ?? (step, username, timeStamp, stepsIndex, approved, yesVotes, noVotes) 
 						VALUES (?, ?, ?, ?, ?, ?, ?);`, [rows[0].goal, prospectiveStep.step, prospectiveStep.username, new Date(), prospectiveStep.stepsIndex, 1, 1, 0], (err, rows, fields) => {
 					//try {
 						console.log('Releasing connection');
