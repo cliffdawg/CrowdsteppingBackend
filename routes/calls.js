@@ -51,7 +51,7 @@ router.get('/token', async (req, res, next) => {
 				success: false,
 				message: data
 			  });
-			  next(err);         
+			  //next(err);         
 		  } else {            
 		      // If token is validated, indicate success
 		      console.log(`Data: ${data}`);   
