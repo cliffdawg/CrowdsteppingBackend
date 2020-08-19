@@ -42,7 +42,8 @@ router.get('/', async (req, res, next) => {
 router.get('/token', async (req, res, next) => {
 	console.log(`calls get token`);
 	// Validate token, and continue onwards if successful
-	checkToken(req, function(err, data) {
+	try {
+		checkToken(req, function(err, data) {
 		  if (err) {
 		      console.log(`Error: ${err}, ${data}`);
 		      // If token is not validated, indicate failure
@@ -50,7 +51,7 @@ router.get('/token', async (req, res, next) => {
 				success: false,
 				message: data
 			  });
-			  //next(err);         
+			  next(err);         
 		  } else {            
 		      // If token is validated, indicate success
 		      console.log(`Data: ${data}`);   
@@ -58,10 +59,17 @@ router.get('/token', async (req, res, next) => {
 		      // can be accessed with property ID's
 		      res.json({
 		        success: true,
-		        data: data
+		        message: data
 		      });  
 		  }    
-	});
+		});
+	} catch (err) {
+		res.json({
+		    success: false,
+		    message: 'Token cannot be validated'
+		});
+		next(err);
+	}
 });
 
 /**
