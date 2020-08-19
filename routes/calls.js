@@ -39,6 +39,37 @@ router.get('/', async (req, res, next) => {
 * description: gets all the goals
 * responses: 
 */
+router.get('/token', async (req, res, next) => {
+	console.log(`calls get token`);
+	// Validate token, and continue onwards if successful
+	checkToken(req, function(err, data) {
+		  if (err) {
+		      console.log(`Error: ${err}, ${data}`);
+		      // If token is not validated, indicate failure
+			  res.json({
+				success: false,
+				message: data
+			  });
+			  //next(err);         
+		  } else {            
+		      // If token is validated, indicate success
+		      console.log(`Data: ${data}`);   
+		      // The data received here is a packet of rows whose values
+		      // can be accessed with property ID's
+		      res.json({
+		        success: true,
+		        data: data
+		      });  
+		  }    
+	});
+});
+
+/**
+* endpoint: /:id
+* method: GET
+* description: gets all the goals
+* responses: 
+*/
 router.get('/goals', async (req, res, next) => {
 	console.log(`calls get goals`);
 	// Validate token, and continue onwards if successful

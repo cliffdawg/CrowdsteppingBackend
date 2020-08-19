@@ -3,6 +3,7 @@
 // Heroku looks for Procfile, which explicitly declares what command should be executed to start the app
 // ?? in query is for ids, ? is for values
 // Can't use 'index' as a column in a MySQL table because it causes error
+// Can only create foreign key constraint on primary key because it has to be unique
 
 const mysql = require('mysql');
 const async = require('async');
@@ -27,6 +28,29 @@ const pool  = mysql.createPool({
 //   database: process.env.LOCAL_DATABASE,
 //   insecureAuth: process.env.LOCAL_INSECUREAUTH
 // });
+
+
+/*
+
+Creating the users table:
+
+CREATE TABLE users( 
+	id INT unsigned NOT NULL AUTO_INCREMENT, 
+	username VARCHAR(50) NOT NULL, 
+	email VARCHAR(50) NOT NULL, 
+	passHash CHAR(60) BINARY NOT NULL, 
+	PRIMARY KEY (id) ) DEFAULT CHARSET=utf8;
+
+Creating the votes table:
+
+CREATE TABLE votes( 
+	id INT unsigned NOT NULL, 
+	goal VARCHAR(100) NOT NULL DEFAULT '', 
+	step VARCHAR(500) NOT NULL DEFAULT '',
+	action VARCHAR(50) NOT NULL DEFAULT '', 
+	CONSTRAINT FK_id FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE );
+
+*/
 
 async function checkToken(req, callback) {
 	console.log('checkToken');
@@ -436,8 +460,8 @@ async function signIn(signin, callback) {
 	    return;
 	  } 
 	  console.log('Pool connected!');
-	  console.log(`Signing in: SELECT username, email, passHash FROM users WHERE username = \'${signin.username}\';`);
-	  connection.query('SELECT username, email, passHash FROM users WHERE username = ?;', [signin.username], (err, rows, fields) => {
+	  console.log(`Signing in: SELECT id, username, email, passHash FROM users WHERE username = \'${signin.username}\';`);
+	  connection.query('SELECT id, username, email, passHash FROM users WHERE username = ?;', [signin.username], (err, rows, fields) => {
 	  		connection.release();
 	  		console.log(`Rows count: ${rows.length}`);
 			//try {  
