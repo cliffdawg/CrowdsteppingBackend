@@ -559,7 +559,7 @@ router.post('/signin', async (req, res, next) => {
 	        res.json({
 		        success: true,
 		        message: 'Authentication successful!',
-		        token: data
+		        data: data
 		    });
 	      }    
 		});
