@@ -494,7 +494,7 @@ async function signIn(signin, callback) {
 					            	algorithm: 'HS256',
 					          		expiresIn: 60 * 60 
 					          	})
-				        	callback(null, token);
+				        	callback(null, [token, rows[0].id]);
 					      } else {
 					      	callback('Error', 'Incorrect Password');
 					      }
