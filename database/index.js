@@ -412,6 +412,7 @@ async function signUp(signup, callback) {
 							if (err) {
 							  callback(err, 'MySQL connection error');
 							} else {
+							  console.log(`Signup response: ${rows[0]}`);
 							  const token = jwt.sign(
 								{
 									username: signup.username,
