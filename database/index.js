@@ -421,21 +421,22 @@ async function signUp(signup, callback) {
 							      console.log(`Failure: ${err}`);
 							      callback(err, 'MySQL connection error');
 							    } else {
-								const token = jwt.sign(
-								  {
-									username: signup.username,
-									email: signup.email
-								  },
-					        	  process.env.PRIVATE_KEY,
-					              { 
-					            	algorithm: 'HS256',
-					          		expiresIn: 60 * 60 
-					          	  })
-							    const payload = {
-						            data: rows,
-						            token: token
-						        };
-							    callback(null, [payload, rows[0].id]);
+							      console.log(`Returning last ID : ${rows[0].id}`);
+								  const token = jwt.sign(
+								    {
+									  username: signup.username,
+									  email: signup.email
+								    },
+					        	    process.env.PRIVATE_KEY,
+					                { 
+					            	  algorithm: 'HS256',
+					          		  expiresIn: 60 * 60 
+					          	    })
+							      const payload = {
+						              data: rows,
+						              token: token
+						          };
+							      callback(null, [payload, rows[0].id]);
 
 							  }
 
