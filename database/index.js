@@ -407,34 +407,40 @@ async function signUp(signup, callback) {
 			        console.log(`Signing up: INSERT INTO users (username, email, passHash) 
 					  VALUES ( \'${signup.username}\', \'${signup.email}\', ${hash});`);
 					connection.query(`INSERT INTO users (username, email, passHash) 
-						VALUES (?, ?, ?); SELECT LAST_INSERT_ID();`, [signup.username, signup.email, hash], (err, rows, fields) => {
-							connection.release();
+						VALUES (?, ?, ?);`, [signup.username, signup.email, hash], (err, rows, fields) => {
 							if (err) {
+							  connection.release();
+							  console.log(`Failure: ${err}`);
 							  callback(err, 'MySQL connection error');
 							} else {
-
-
-							  console.log(`signup response: ${rows}`);
-
-
-							  const token = jwt.sign(
-								{
+							  console.log(`username inserted: ${signup.username}`);
+			                  console.log(`SELECT LAST_INSERT_ID();`);
+							  connection.query(`SELECT LAST_INSERT_ID();`, (err, rows, fields) => {
+							  	connection.release();
+							    if (err) {
+							      console.log(`Failure: ${err}`);
+							      callback(err, 'MySQL connection error');
+							    } else {
+								const token = jwt.sign(
+								  {
 									username: signup.username,
 									email: signup.email
-								},
-					        	process.env.PRIVATE_KEY,
-					            { 
+								  },
+					        	  process.env.PRIVATE_KEY,
+					              { 
 					            	algorithm: 'HS256',
 					          		expiresIn: 60 * 60 
-					          	})
-							  const payload = {
+					          	  })
+							    const payload = {
 						            data: rows,
 						            token: token
 						        };
-							  callback(null, payload);
+							    callback(null, [payload, rows[0].id]);
+
+							  }
 
 
-
+							  })
 
 
 							}
