@@ -407,12 +407,16 @@ async function signUp(signup, callback) {
 			        console.log(`Signing up: INSERT INTO users (username, email, passHash) 
 					  VALUES ( \'${signup.username}\', \'${signup.email}\', ${hash});`);
 					connection.query(`INSERT INTO users (username, email, passHash) 
-						VALUES (?, ?, ?);`, [signup.username, signup.email, hash], (err, rows, fields) => {
+						VALUES (?, ?, ?); SELECT LAST_INSERT_ID();`, [signup.username, signup.email, hash], (err, rows, fields) => {
 							connection.release();
 							if (err) {
 							  callback(err, 'MySQL connection error');
 							} else {
-							  console.log(`Signup response: ${fields}`);
+
+
+							  console.log(`signup response: ${rows}`);
+
+
 							  const token = jwt.sign(
 								{
 									username: signup.username,
@@ -428,6 +432,11 @@ async function signUp(signup, callback) {
 						            token: token
 						        };
 							  callback(null, payload);
+
+
+
+
+
 							}
 					    })
 			        });
