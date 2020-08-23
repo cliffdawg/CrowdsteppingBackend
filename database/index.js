@@ -436,7 +436,7 @@ async function signUp(signup, callback) {
 						              data: rows,
 						              token: token
 						          };
-							      callback(null, [payload, rows]);
+							      callback(null, payload);
 
 							  }
 

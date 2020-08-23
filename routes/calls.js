@@ -528,7 +528,7 @@ router.post('/signup', async (req, res, next) => {
             res.json({
 		        success: true,
 		        message: 'Sign up successful!',
-		        data: data.data,
+		        userID: data.data,
 		        token: data.token
 		    });
           }    
