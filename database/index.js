@@ -421,7 +421,7 @@ async function signUp(signup, callback) {
 							      console.log(`Failure: ${err}`);
 							      callback(err, 'MySQL connection error');
 							    } else {
-							      console.log(`Returning last ID : ${rows[0].id}`);
+							      console.log(`Returning last ID : ${rows}`);
 								  const token = jwt.sign(
 								    {
 									  username: signup.username,
