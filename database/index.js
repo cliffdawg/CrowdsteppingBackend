@@ -415,6 +415,7 @@ async function signUp(signup, callback) {
 							} else {
 							  console.log(`username inserted: ${signup.username}`);
 			                  console.log(`SELECT LAST_INSERT_ID();`);
+			                  // Retrieve the newly-created user's ID
 							  connection.query(`SELECT LAST_INSERT_ID();`, (err, rows, fields) => {
 							  	connection.release();
 							    if (err) {
@@ -437,12 +438,8 @@ async function signUp(signup, callback) {
 						              token: token
 						          };
 							      callback(null, payload);
-
-							  }
-
-
+							    }
 							  })
-
 
 							}
 					    })
