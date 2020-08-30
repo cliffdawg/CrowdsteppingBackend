@@ -643,7 +643,7 @@ async function patchStep(specificStep, callback) {
 								  callback('Failed to increment yesVotes', null);
 								} else {
 								  console.log(`Success incrementing yesVotes for ${specificStep.goal}, ${specificStep.step}`);
-								  callback(null, 'Success incrementing yesVotes');
+								  // No callback here because we still need to record votes relating to users
 								}
 							})
 						} else {
@@ -655,7 +655,7 @@ async function patchStep(specificStep, callback) {
 								  callback('Failed to increment noVotes', null);
 								} else {
 								  console.log(`Success incrementing noVotes for ${specificStep.goal}, ${specificStep.step}`);
-								  callback(null, 'Success incrementing noVotes');
+								  // No callback here because we still need to record votes relating to users
 								}
 							})
 						}
