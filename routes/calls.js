@@ -465,6 +465,11 @@ router.patch('/step', async (req, res, next) => {
 				  success: false,
 				  message: 'Failed to oppose step'
 				}); 
+              } else if (err == 'Failed to record vote') {
+              	res.json({
+				  success: false,
+				  message: 'Failed to relate vote to user'
+				}); 
               } else {
               	res.json({
 				  success: false,

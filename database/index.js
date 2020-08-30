@@ -47,7 +47,7 @@ CREATE TABLE votes(
 	id INT unsigned NOT NULL, 
 	goal VARCHAR(100) NOT NULL DEFAULT '', 
 	step VARCHAR(500) NOT NULL DEFAULT '',
-	action VARCHAR(50) NOT NULL DEFAULT '', 
+	endorsed BOOLEAN NOT NULL DEFAULT FALSE, 
 	CONSTRAINT FK_id FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE );
 
 */
@@ -637,8 +637,8 @@ async function patchStep(specificStep, callback) {
 						if (specificStep.endorsed) {
 							console.log(`UPDATE ${specificStep.goal} SET yesVotes=yesVotes+1 WHERE step = \'${specificStep.step}\';`);
 							connection.query('UPDATE ?? SET yesVotes=yesVotes+1 WHERE step = ?;', [specificStep.goal, specificStep.step], (err, rows, fields) => {
-							  	connection.release();
 								if (err) {
+								  connection.release();
 								  console.log(`Failure: ${err}, failed to increment yesVotes for ${specificStep.goal}, ${specificStep.step}`);
 								  callback('Failed to increment yesVotes', null);
 								} else {
@@ -649,8 +649,8 @@ async function patchStep(specificStep, callback) {
 						} else {
 							console.log(`UPDATE ${specificStep.goal} SET noVotes=noVotes+1 WHERE step = \'${specificStep.step}\';`);
 							connection.query('UPDATE ?? SET noVotes=noVotes+1 WHERE step = ?;', [specificStep.goal, specificStep.step], (err, rows, fields) => {
-							  	connection.release();
 								if (err) {
+								  connection.release();
 								  console.log(`Failure: ${err}, failed to increment noVotes for ${specificStep.goal}, ${specificStep.step}`);
 								  callback('Failed to increment noVotes', null);
 								} else {
@@ -659,6 +659,19 @@ async function patchStep(specificStep, callback) {
 								}
 							})
 						}
+
+						console.log(`INSERT INTO votes (id, goal, step, action) VALUES (\'${specificStep.userID}\', \'${specificStep.goal}\', \'${specificStep.step}\', \'${specificStep.endorsed}\');`);
+						connection.query('INSERT INTO votes (id, goal, step, endorsed) VALUES (?, ?, ?, ?);', [specificStep.userID, specificStep.goal, specificStep.step, specificStep.endorsed], (err, rows, fields) => {
+							connection.release();
+							if (err) {
+							  console.log(`Failure: ${err}, failed to record ${specificStep.endorsed ? 'endorsing' : 'opposing'} vote for ${specificStep.goal}, ${specificStep.step}`);
+							  callback('Failed to record vote', null);
+							} else {
+							  console.log(`Success recording ${specificStep.endorsed ? 'endorsing' : 'opposing'} vote for ${specificStep.goal}, ${specificStep.step}`);
+							  callback(null, 'Success recording vote');
+							}
+						})
+
 					  }
 					// } catch (err) {
 					// 	callback(err, 'Username has no match');
