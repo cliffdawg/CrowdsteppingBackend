@@ -607,9 +607,6 @@ async function patchStep(specificStep, callback) {
 //   insecureAuth: process.env.LOCAL_INSECUREAUTH
 // });
 
-	async.parallel([
-    function(parallelCallback) {
-
 	pool.getConnection(function(err, connection) {
   	  if (err) {
 	    console.error('Error in pool connecting: ' + err.stack);
@@ -692,6 +689,7 @@ async function patchStep(specificStep, callback) {
 					// } catch (err) {
 					// 	callback(err, 'Username has no match');
 					// }
+					  }
 			  	})
 			  }
 			// } catch (err) {
@@ -699,9 +697,6 @@ async function patchStep(specificStep, callback) {
 			// }
 	  })
 	});
-
-	},
-    function(parallelCallback) {
 
 }
 
