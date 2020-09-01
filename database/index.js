@@ -607,6 +607,9 @@ async function patchStep(specificStep, callback) {
 //   insecureAuth: process.env.LOCAL_INSECUREAUTH
 // });
 
+	async.parallel([
+    function(parallelCallback) {
+
 	pool.getConnection(function(err, connection) {
   	  if (err) {
 	    console.error('Error in pool connecting: ' + err.stack);
@@ -626,7 +629,7 @@ async function patchStep(specificStep, callback) {
 		      } else {
 		      	console.log(`Success: ${rows[0].goal}`);
 				console.log(`Finding step: SELECT * FROM ${rows[0].goal} WHERE step = \'${specificStep.step}\';`);
-				connection.query('SELECT * FROM ?? WHERE step = ?;', [specificStep.goal, specificStep.step], (err, rows, fields) => {
+				connection.query('SELECT * FROM ?? WHERE step = ?;', [rows[0].goal, specificStep.step], (err, rows, fields) => {
 					//try {  
 					  if (err) {
 					  	connection.release();
@@ -635,44 +638,57 @@ async function patchStep(specificStep, callback) {
 				      } else {
 						// Increment or decrement the count based on endorse boolean
 						if (specificStep.endorsed) {
-							console.log(`UPDATE ${specificStep.goal} SET yesVotes=yesVotes+1 WHERE step = \'${specificStep.step}\';`);
-							connection.query('UPDATE ?? SET yesVotes=yesVotes+1 WHERE step = ?;', [specificStep.goal, specificStep.step], (err, rows, fields) => {
+							console.log(`UPDATE ${specificStep.goal} SET yesVotes=yesVotes+1 WHERE step = \'${rows[0].step}\';`);
+							connection.query('UPDATE ?? SET yesVotes=yesVotes+1 WHERE step = ?;', [specificStep.goal, rows[0].step], (err, rows, fields) => {
 								if (err) {
 								  connection.release();
-								  console.log(`Failure: ${err}, failed to increment yesVotes for ${specificStep.goal}, ${specificStep.step}`);
+								  console.log(`Failure: ${err}, failed to increment yesVotes for ${specificStep.goal}, ${rows[0].step}`);
 								  callback('Failed to increment yesVotes', null);
 								} else {
-								  console.log(`Success incrementing yesVotes for ${specificStep.goal}, ${specificStep.step}`);
+								  console.log(`Success incrementing yesVotes for ${specificStep.goal}, ${rows[0].step}`);
 								  // No callback here because we still need to record votes relating to users
 								}
 							})
 						} else {
-							console.log(`UPDATE ${specificStep.goal} SET noVotes=noVotes+1 WHERE step = \'${specificStep.step}\';`);
-							connection.query('UPDATE ?? SET noVotes=noVotes+1 WHERE step = ?;', [specificStep.goal, specificStep.step], (err, rows, fields) => {
+							console.log(`UPDATE ${specificStep.goal} SET noVotes=noVotes+1 WHERE step = \'${rows[0].step}\';`);
+							connection.query('UPDATE ?? SET noVotes=noVotes+1 WHERE step = ?;', [specificStep.goal, rows[0].step], (err, rows, fields) => {
 								if (err) {
 								  connection.release();
-								  console.log(`Failure: ${err}, failed to increment noVotes for ${specificStep.goal}, ${specificStep.step}`);
+								  console.log(`Failure: ${err}, failed to increment noVotes for ${specificStep.goal}, ${rows[0].step}`);
 								  callback('Failed to increment noVotes', null);
 								} else {
-								  console.log(`Success incrementing noVotes for ${specificStep.goal}, ${specificStep.step}`);
+								  console.log(`Success incrementing noVotes for ${specificStep.goal}, ${rows[0].step}`);
 								  // No callback here because we still need to record votes relating to users
 								}
 							})
 						}
 
-						console.log(`INSERT INTO votes (id, goal, step, action) VALUES (\'${specificStep.userID}\', \'${specificStep.goal}\', \'${specificStep.step}\', \'${specificStep.endorsed}\');`);
-						connection.query('INSERT INTO votes (id, goal, step, endorsed) VALUES (?, ?, ?, ?);', [specificStep.userID, specificStep.goal, specificStep.step, specificStep.endorsed], (err, rows, fields) => {
-							connection.release();
+						console.log(`INSERT INTO votes (id, goal, step, action) VALUES (\'${specificStep.userID}\', \'${specificStep.goal}\', \'${rows[0].step}\', \'${specificStep.endorsed}\');`);
+						connection.query('INSERT INTO votes (id, goal, step, endorsed) VALUES (?, ?, ?, ?);', [specificStep.userID, specificStep.goal, rows[0].step, specificStep.endorsed], (err, rows, fields) => {
 							if (err) {
-							  console.log(`Failure: ${err}, failed to record ${specificStep.endorsed ? 'endorsing' : 'opposing'} vote for ${specificStep.goal}, ${specificStep.step}`);
+							  connection.release();
+							  console.log(`Failure: ${err}, failed to record ${specificStep.endorsed ? 'endorsing' : 'opposing'} vote for ${specificStep.goal}, ${rows[0].step}`);
 							  callback('Failed to record vote', null);
 							} else {
-							  console.log(`Success recording ${specificStep.endorsed ? 'endorsing' : 'opposing'} vote for ${specificStep.goal}, ${specificStep.step}`);
-							  callback(null, 'Success recording vote');
+							  console.log(`Success recording ${specificStep.endorsed ? 'endorsing' : 'opposing'} vote for ${specificStep.goal}, ${rows[0].step}`);
+							  // No callback here because we still need to update the approved status
 							}
 						})
 
-					  }
+						var approvedResult = (rows[0].yesVotes >= rows[0].noVotes) ? true : false;
+
+						console.log(`UPDATE ${specificStep.goal} SET approved=${approvedResult} WHERE step = \'${rows[0].step}\';`);
+						connection.query('UPDATE ?? SET approved=? WHERE step = ?;', [specificStep.goal, approvedResult, rows[0].step], (err, rows, fields) => {
+							connection.release();
+							if (err) {
+							  console.log(`Failure: ${err}, failed to set ${approvedResult ? 'approved' : 'not approved'} for ${specificStep.goal}, ${rows[0].step}`);
+							  callback('Failed to set approval', null);
+							} else {
+							  console.log(`Success setting ${approvedResult ? 'approved' : 'not approved'} for ${specificStep.goal}, ${rows[0].step}`);
+							  callback(null, 'Success updating approved status');
+							}
+						})
+
 					// } catch (err) {
 					// 	callback(err, 'Username has no match');
 					// }
@@ -683,6 +699,9 @@ async function patchStep(specificStep, callback) {
 			// }
 	  })
 	});
+
+	},
+    function(parallelCallback) {
 
 }
 
