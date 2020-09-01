@@ -470,6 +470,11 @@ router.patch('/step', async (req, res, next) => {
 				  success: false,
 				  message: 'Failed to relate vote to user'
 				}); 
+              } else if (err == 'Failed to set approval') {
+              	res.json({
+				  success: false,
+				  message: 'Failed set approval status for step'
+				}); 
               } else {
               	res.json({
 				  success: false,

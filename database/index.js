@@ -660,6 +660,7 @@ async function patchStep(specificStep, callback) {
 							})
 						}
 
+						// Record the vote so that user can later check if it made that vote
 						console.log(`INSERT INTO votes (id, goal, step, action) VALUES (\'${specificStep.userID}\', \'${specificStep.goal}\', \'${rows[0].step}\', \'${specificStep.endorsed}\');`);
 						connection.query('INSERT INTO votes (id, goal, step, endorsed) VALUES (?, ?, ?, ?);', [specificStep.userID, specificStep.goal, rows[0].step, specificStep.endorsed], (err, rows, fields) => {
 							if (err) {
@@ -672,6 +673,7 @@ async function patchStep(specificStep, callback) {
 							}
 						})
 
+						// Calculate the approval status of the step after incrementing/recording vote
 						var approvedResult = (rows[0].yesVotes >= rows[0].noVotes) ? true : false;
 
 						console.log(`UPDATE ${specificStep.goal} SET approved=${approvedResult} WHERE step = \'${rows[0].step}\';`);
