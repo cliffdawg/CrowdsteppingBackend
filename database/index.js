@@ -640,7 +640,7 @@ async function patchStep(specificStep, callback) {
 						// Increment or decrement the count based on endorse boolean
 						var incrementVotes = specificStep.endorsed ? 'yesVotes' : 'noVotes';
 						console.log(`UPDATE ${specificStep.goal} SET ${incrementVotes}=${incrementVotes}+1 WHERE step = \'${rows[0].step}\';`);
-						connection.query('UPDATE ?? SET ?=?+1 WHERE step = ?;', [specificStep.goal, incrementVotes, incrementVotes, rows[0].step], (err, rows, fields) => {
+						connection.query('UPDATE ?? SET ??=??+1 WHERE step = ?;', [specificStep.goal, incrementVotes, incrementVotes, rows[0].step], (err, rows, fields) => {
 							if (err) {
 							  connection.release();
 							  console.log(`Failure: ${err}, failed to increment ${incrementVotes} for ${specificStep.goal}, ${specificStep.step}`);
