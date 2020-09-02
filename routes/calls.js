@@ -455,15 +455,10 @@ router.patch('/step', async (req, res, next) => {
 				  success: false,
 				  message: 'Failed to find a step that matches'
 				}); 
-              } else if (err == 'Failed to increment yesVotes') {
+              } else if (err == 'Failed to increment votes') {
               	res.json({
 				  success: false,
-				  message: 'Failed to endorse step'
-				}); 
-              } else if (err == 'Failed to increment noVotes') {
-              	res.json({
-				  success: false,
-				  message: 'Failed to oppose step'
+				  message: 'Failed to endorse/oppose step'
 				}); 
               } else if (err == 'Failed to record vote') {
               	res.json({
