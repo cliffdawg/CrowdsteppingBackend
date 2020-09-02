@@ -666,7 +666,7 @@ async function patchStep(specificStep, callback) {
 							  			  callback('Failed to set approval', null);
 										} else {
 							  			  console.log(`Success setting ${approvedResult ? 'approved' : 'not approved'} for ${specificStep.goal}, ${specificStep.step}`);
-							  			  callback(null, 'Success updating approved status');
+							  			  callback(null, rows);
 										}
 									})
 
