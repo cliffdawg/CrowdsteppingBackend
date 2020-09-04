@@ -692,7 +692,7 @@ async function patchStep(specificStep, callback) {
 		  									} 
 											// Delete the outdated vote
 							  		  		console.log(`DELETE FROM votes WHERE id = ${specificStep.userID} AND goal = \'${specificStep.goal}\' AND step = \'${specificStep.step}\' AND endorsed = ${specificStep.endorsed};`);
-							  		  		connection.query('DELETE FROM votes WHERE id = ? AND goal = ? AND step = ? AND endorsed = ?;', [specificStep.userID, specificStep.goal, specificStep.step, specificStep.endorsed], (err, rows, fields) => {
+							  		  		connection.query('DELETE FROM votes WHERE id = ? AND goal = ? AND step = ? AND endorsed = ?;', [specificStep.userID, specificStep.goal, specificStep.step, !specificStep.endorsed], (err, rows, fields) => {
 							  		  			connection.release();
 							  	  	  			if (err) {
 							    				  console.log(`Failure: ${err}, failed to delete ${specificStep.endorsed ? 'opposing' : 'endorsing'} vote for ${specificStep.goal}, ${specificStep.step}`);
