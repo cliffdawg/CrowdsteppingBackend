@@ -460,15 +460,20 @@ router.patch('/step', async (req, res, next) => {
 				  success: false,
 				  message: 'Failed to endorse/oppose step'
 				}); 
+              } else if (err == 'Failed to set approval') {
+              	res.json({
+				  success: false,
+				  message: 'Failed to set approval status for step'
+				}); 
               } else if (err == 'Failed to record vote') {
               	res.json({
 				  success: false,
 				  message: 'Failed to relate vote to user'
 				}); 
-              } else if (err == 'Failed to set approval') {
+              } else if (err == 'Failed to delete vote') {
               	res.json({
 				  success: false,
-				  message: 'Failed set approval status for step'
+				  message: 'Failed to delete previous vote related to user'
 				}); 
               } else {
               	res.json({
