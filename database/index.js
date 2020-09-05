@@ -651,6 +651,7 @@ async function patchStep(specificStep, callback) {
 							} else {
 								console.log(`Success recording ${specificStep.endorsed ? 'endorsing' : 'opposing'} vote for ${specificStep.goal}, ${specificStep.step}`);
 							  	// Calculate the approval status of the step after incrementing vote
+							  	console.log(`currentYesVotes: ${currentYesVotes}, currentNoVotes: ${currentNoVotes}`);
 								var approvedResult = (currentYesVotes >= currentNoVotes) ? true : false;
 								console.log(`UPDATE ${specificStep.goal} SET approved=${approvedResult} WHERE step = \'${specificStep.step}\';`);
 								connection.query('UPDATE ?? SET approved=? WHERE step = ?;', [specificStep.goal, approvedResult, specificStep.step], (err, rows, fields) => {
@@ -669,9 +670,9 @@ async function patchStep(specificStep, callback) {
 		    								  parallelCallback('Error in pool connecting!', null);
 		    								  return;
 		  									} 
-											// Insert incremented vote and record so that can later check if a user made that vote
-							  		  		console.log(`INSERT INTO votes (id, goal, step, action) VALUES (\'${specificStep.userID}\', \'${specificStep.goal}\', \'${specificStep.step}\', \'${specificStep.endorsed}\');`);
-							  		  		connection.query('INSERT INTO votes (id, goal, step, endorsed) VALUES (?, ?, ?, ?);', [specificStep.userID, specificStep.goal, specificStep.step, specificStep.endorsed], (err, rows, fields) => {
+											// Insert incremented vote and record so that can later check if a user made that vote. This query inserts only if doesn't already exist
+							  		  		console.log(`INSERT INTO votes (id, goal, step, endorsed) SELECT * FROM (SELECT ${specificStep.userID}, \'${specificStep.goal}\', \'${specificStep.step}\', ${specificStep.endorsed}) AS temp WHERE NOT EXISTS (SELECT * FROM votes WHERE id = ${specificStep.userID} AND goal = \'${specificStep.goal}\' AND step = \'${specificStep.step}\' AND endorsed = ${specificStep.endorsed}) LIMIT 1;`);
+							  		  		connection.query('INSERT INTO votes (id, goal, step, endorsed) SELECT * FROM (SELECT ?, ?, ?, ?) AS temp WHERE NOT EXISTS (SELECT * FROM votes WHERE id = ? AND goal = ? AND step = ? AND endorsed = ?) LIMIT 1;', [specificStep.userID, specificStep.goal, specificStep.step, specificStep.endorsed, specificStep.userID, specificStep.goal, specificStep.step, specificStep.endorsed], (err, rows, fields) => {
 							  		  			connection.release();
 							  	  	  	  		if (err) {
 							    				  console.log(`Failure: ${err}, failed to record ${specificStep.endorsed ? 'endorsing' : 'opposing'} vote for ${specificStep.goal}, ${specificStep.step}`);
