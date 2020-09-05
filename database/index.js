@@ -649,6 +649,8 @@ async function patchStep(specificStep, callback) {
 							  console.log(`Failure: ${err}, failed to increment ${incrementVotes} for ${specificStep.goal}, ${specificStep.step}`);
 							  callback('Failed to increment votes', null);
 							} else {
+								currentYesVotes = (specificStep.endorsed) ? currentYesVotes+1 : currentYesVotes;
+								currentNoVotes = (specificStep.endorsed) ? currentNoVotes : currentNoVotes+1;
 								console.log(`Success recording ${specificStep.endorsed ? 'endorsing' : 'opposing'} vote for ${specificStep.goal}, ${specificStep.step}`);
 							  	// Calculate the approval status of the step after incrementing vote
 							  	console.log(`currentYesVotes: ${currentYesVotes}, currentNoVotes: ${currentNoVotes}`);
