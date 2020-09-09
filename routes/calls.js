@@ -343,13 +343,8 @@ router.post('/steps', async (req, res, next) => {
 	});
 });
 
-
-
-
-
-
 /**
-* endpoint: /
+* endpoint: /:votes
 * method: POST
 * description: gets votes for a particular user and goal
 * responses: 
@@ -407,9 +402,9 @@ router.post('/votes', async (req, res, next) => {
 });
 
 /**
-* endpoint: /:id
+* endpoint: /:votes
 * method: POST
-* description: if token authentication fails for getting steps for a goal
+* description: gets votes for a particular user and goal
 * responses: 
 */
 router.post('/votes', async (req, res, next) => {
@@ -418,12 +413,6 @@ router.post('/votes', async (req, res, next) => {
 		message: 'Token cannot be validated!'
 	});
 });
-
-
-
-
-
-
 
 /**
 * endpoint: /

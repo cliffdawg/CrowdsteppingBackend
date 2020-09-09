@@ -22,16 +22,42 @@ const pool  = mysql.createPool({
   insecureAuth: process.env.REMOTE_INSECUREAUTH
 });
 
-// const connection = mysql.createConnection({
-//   host: process.env.LOCAL_HOST,
-//   user: process.env.LOCAL_USER,
-//   password: process.env.LOCAL_PASSWORD,
-//   database: process.env.LOCAL_DATABASE,
-//   insecureAuth: process.env.LOCAL_INSECUREAUTH
-// });
-
-
 /*
+
+const connection = mysql.createConnection({
+  host: process.env.LOCAL_HOST,
+  user: process.env.LOCAL_USER,
+  password: process.env.LOCAL_PASSWORD,
+  database: process.env.LOCAL_DATABASE,
+  insecureAuth: process.env.LOCAL_INSECUREAUTH
+});
+
+const connection = mysql.createConnection({
+  host: process.env.REMOTE_HOST,
+  user: process.env.REMOTE_USER,
+  password: process.env.REMOTE_PASSWORD,
+  database: process.env.REMOTE_DATABASE,
+  insecureAuth: process.env.REMOTE_INSECUREAUTH
+});
+
+connection.connect((err) => {
+  if (err) {
+	console.error('Error connecting: ' + err.stack);
+	return;
+  }
+  console.log('Connected!');
+
+  console.log(`SELECT * FROM tests WHERE id = ${id};`);
+  connection.query('SELECT * FROM tests WHERE id = ?;', [id], (err, rows, fields) => {
+    if (err) {
+	  console.log(`Failure: ${err}`);
+	  callback(err, null);
+	} else {
+	  console.log('Success');
+	  callback(null, rows);
+	}
+  })
+});
 
 Creating the users table:
 
@@ -74,60 +100,7 @@ async function checkToken(req, callback) {
     }
 };
 
-// async function getData(id, callback) {
-
-// 	const connection = mysql.createConnection({
-// 	  host: process.env.REMOTE_HOST,
-// 	  user: process.env.REMOTE_USER,
-// 	  password: process.env.REMOTE_PASSWORD,
-// 	  database: process.env.REMOTE_DATABASE,
-// 	  insecureAuth: process.env.REMOTE_INSECUREAUTH
-// 	});
-// // const connection = mysql.createConnection({
-// //   host: process.env.LOCAL_HOST,
-// //   user: process.env.LOCAL_USER,
-// //   password: process.env.LOCAL_PASSWORD,
-// //   database: process.env.LOCAL_DATABASE,
-// //   insecureAuth: process.env.LOCAL_INSECUREAUTH
-// // });
-
-// 	connection.connect((err) => {
-// 	  if (err) {
-// 	    console.error('Error connecting: ' + err.stack);
-// 	    return;
-// 	  }
-// 	  console.log('Connected!');
-
-// 	  console.log(`SELECT * FROM tests WHERE id = ${id};`);
-// 	  connection.query('SELECT * FROM tests WHERE id = ?;', [id], (err, rows, fields) => {
-// 		if (err) {
-// 		  console.log(`Failure: ${err}`);
-// 		  callback(err, null);
-// 		} else {
-// 		  console.log('Success');
-// 		  callback(null, rows);
-// 		}
-// 	  })
-
-// 	});
-// }
-
 async function getGoals(callback) {
-
-	// const connection = mysql.createConnection({
-	//   host: process.env.REMOTE_HOST,
-	//   user: process.env.REMOTE_USER,
-	//   password: process.env.REMOTE_PASSWORD,
-	//   database: process.env.REMOTE_DATABASE,
-	//   insecureAuth: process.env.REMOTE_INSECUREAUTH
-	// });
-// const connection = mysql.createConnection({
-//   host: process.env.LOCAL_HOST,
-//   user: process.env.LOCAL_USER,
-//   password: process.env.LOCAL_PASSWORD,
-//   database: process.env.LOCAL_DATABASE,
-//   insecureAuth: process.env.LOCAL_INSECUREAUTH
-// });
 
 	// Release the connection only when you finished using it through the rest of the scope
 	pool.getConnection(function(err, connection) {
@@ -153,44 +126,6 @@ async function getGoals(callback) {
 }
 
 async function createGoal(create, callback) {
-
-	// const connection = mysql.createConnection({
-	//   host: process.env.REMOTE_HOST,
-	//   user: process.env.REMOTE_USER,
-	//   password: process.env.REMOTE_PASSWORD,
-	//   database: process.env.REMOTE_DATABASE,
-	//   insecureAuth: process.env.REMOTE_INSECUREAUTH
-	// });
-// const connection = mysql.createConnection({
-//   host: process.env.LOCAL_HOST,
-//   user: process.env.LOCAL_USER,
-//   password: process.env.LOCAL_PASSWORD,
-//   database: process.env.LOCAL_DATABASE,
-//   insecureAuth: process.env.LOCAL_INSECUREAUTH
-// });
-
-
-	// pool.getConnection(function(err, connection) {
- //  	  if (err) {
-	//     console.error('Error in pool connecting: ' + err.stack);
-	//     callback(err, 'Error in pool connecting!');
-	//     return;
-	//   } 
-	//   console.log('Connected!');
- //      console.log(`Creating: INSERT INTO goals (first_var, second_var, third_var) 
-	// 	VALUES ( \'${create.goal}\', ${create.username}...`);
-	//   connection.query(`INSERT INTO goals (goal, username, timeStamp) 
-	// 	VALUES (?, ?, ?);`, [create.goal, create.username, new Date()], (err, rows, fields) => {
-	// 	  connection.release();
-	// 	  if (err) {
-	// 		console.log(`Failure: ${err}`);
-	// 		callback(err, null);
-	//       } else {
-	// 		console.log('Success');
-	// 		callback(null, rows);
-	// 	  }
-	//   })
-	// });
 
 	// Run the tasks collection of functions in parallel
 	async.parallel([
@@ -268,44 +203,6 @@ async function createGoal(create, callback) {
 
 async function getSteps(getSteps, callback) {
 
-	// const connection = mysql.createConnection({
-	//   host: process.env.REMOTE_HOST,
-	//   user: process.env.REMOTE_USER,
-	//   password: process.env.REMOTE_PASSWORD,
-	//   database: process.env.REMOTE_DATABASE,
-	//   insecureAuth: process.env.REMOTE_INSECUREAUTH
-	// });
-// const connection = mysql.createConnection({
-//   host: process.env.LOCAL_HOST,
-//   user: process.env.LOCAL_USER,
-//   password: process.env.LOCAL_PASSWORD,
-//   database: process.env.LOCAL_DATABASE,
-//   insecureAuth: process.env.LOCAL_INSECUREAUTH
-// });
-
-
-	// pool.getConnection(function(err, connection) {
- //  	  if (err) {
-	//     console.error('Error in pool connecting: ' + err.stack);
-	//     callback(err, 'Error in pool connecting!');
-	//     return;
-	//   } 
-	//   console.log('Connected!');
- //      console.log(`Creating: INSERT INTO goals (first_var, second_var, third_var) 
-	// 	VALUES ( \'${create.goal}\', ${create.username}...`);
-	//   connection.query(`INSERT INTO goals (goal, username, timeStamp) 
-	// 	VALUES (?, ?, ?);`, [create.goal, create.username, new Date()], (err, rows, fields) => {
-	// 	  connection.release();
-	// 	  if (err) {
-	// 		console.log(`Failure: ${err}`);
-	// 		callback(err, null);
-	//       } else {
-	// 		console.log('Success');
-	// 		callback(null, rows);
-	// 	  }
-	//   })
-	// });
-
 	// Run the tasks collection of functions in parallel
 	async.parallel([
     function(parallelCallback) {
@@ -364,51 +261,7 @@ async function getSteps(getSteps, callback) {
 	});
 }
 
-
-
-
-
-
-
 async function getVotes(getVotes, callback) {
-
-	// const connection = mysql.createConnection({
-	//   host: process.env.REMOTE_HOST,
-	//   user: process.env.REMOTE_USER,
-	//   password: process.env.REMOTE_PASSWORD,
-	//   database: process.env.REMOTE_DATABASE,
-	//   insecureAuth: process.env.REMOTE_INSECUREAUTH
-	// });
-// const connection = mysql.createConnection({
-//   host: process.env.LOCAL_HOST,
-//   user: process.env.LOCAL_USER,
-//   password: process.env.LOCAL_PASSWORD,
-//   database: process.env.LOCAL_DATABASE,
-//   insecureAuth: process.env.LOCAL_INSECUREAUTH
-// });
-
-
-	// pool.getConnection(function(err, connection) {
- //  	  if (err) {
-	//     console.error('Error in pool connecting: ' + err.stack);
-	//     callback(err, 'Error in pool connecting!');
-	//     return;
-	//   } 
-	//   console.log('Connected!');
- //      console.log(`Creating: INSERT INTO goals (first_var, second_var, third_var) 
-	// 	VALUES ( \'${create.goal}\', ${create.username}...`);
-	//   connection.query(`INSERT INTO goals (goal, username, timeStamp) 
-	// 	VALUES (?, ?, ?);`, [create.goal, create.username, new Date()], (err, rows, fields) => {
-	// 	  connection.release();
-	// 	  if (err) {
-	// 		console.log(`Failure: ${err}`);
-	// 		callback(err, null);
-	//       } else {
-	// 		console.log('Success');
-	// 		callback(null, rows);
-	// 	  }
-	//   })
-	// });
 
 	pool.getConnection(function(err, connection) {
   	  if (err) {
@@ -441,30 +294,7 @@ async function getVotes(getVotes, callback) {
 
 }
 
-
-
-
-
-
-
-
-
 async function signUp(signup, callback) {
-
-	// const connection = mysql.createConnection({
-	//   host: process.env.REMOTE_HOST,
-	//   user: process.env.REMOTE_USER,
-	//   password: process.env.REMOTE_PASSWORD,
-	//   database: process.env.REMOTE_DATABASE,
-	//   insecureAuth: process.env.REMOTE_INSECUREAUTH
-	// });
-// const connection = mysql.createConnection({
-//   host: process.env.LOCAL_HOST,
-//   user: process.env.LOCAL_USER,
-//   password: process.env.LOCAL_PASSWORD,
-//   database: process.env.LOCAL_DATABASE,
-//   insecureAuth: process.env.LOCAL_INSECUREAUTH
-// });
 
 	pool.getConnection(function(err, connection) {
   	  if (err) {
@@ -540,21 +370,6 @@ async function signUp(signup, callback) {
 
 async function signIn(signin, callback) {
 
-	// const connection = mysql.createConnection({
-	//   host: process.env.REMOTE_HOST,
-	//   user: process.env.REMOTE_USER,
-	//   password: process.env.REMOTE_PASSWORD,
-	//   database: process.env.REMOTE_DATABASE,
-	//   insecureAuth: process.env.REMOTE_INSECUREAUTH
-	// });
-// const connection = mysql.createConnection({
-//   host: process.env.LOCAL_HOST,
-//   user: process.env.LOCAL_USER,
-//   password: process.env.LOCAL_PASSWORD,
-//   database: process.env.LOCAL_DATABASE,
-//   insecureAuth: process.env.LOCAL_INSECUREAUTH
-// });
-
 	pool.getConnection(function(err, connection) {
   	  if (err) {
 	    console.error('Error in pool connecting: ' + err.stack);
@@ -614,21 +429,6 @@ async function signIn(signin, callback) {
 
 async function createStep(prospectiveStep, callback) {
 
-	// const connection = mysql.createConnection({
-	//   host: process.env.REMOTE_HOST,
-	//   user: process.env.REMOTE_USER,
-	//   password: process.env.REMOTE_PASSWORD,
-	//   database: process.env.REMOTE_DATABASE,
-	//   insecureAuth: process.env.REMOTE_INSECUREAUTH
-	// });
-// const connection = mysql.createConnection({
-//   host: process.env.LOCAL_HOST,
-//   user: process.env.LOCAL_USER,
-//   password: process.env.LOCAL_PASSWORD,
-//   database: process.env.LOCAL_DATABASE,
-//   insecureAuth: process.env.LOCAL_INSECUREAUTH
-// });
-
 	pool.getConnection(function(err, connection) {
   	  if (err) {
 	    console.error('Error in pool connecting: ' + err.stack);
@@ -679,21 +479,6 @@ async function createStep(prospectiveStep, callback) {
 
 
 async function patchStep(specificStep, callback) {
-
-	// const connection = mysql.createConnection({
-	//   host: process.env.REMOTE_HOST,
-	//   user: process.env.REMOTE_USER,
-	//   password: process.env.REMOTE_PASSWORD,
-	//   database: process.env.REMOTE_DATABASE,
-	//   insecureAuth: process.env.REMOTE_INSECUREAUTH
-	// });
-// const connection = mysql.createConnection({
-//   host: process.env.LOCAL_HOST,
-//   user: process.env.LOCAL_USER,
-//   password: process.env.LOCAL_PASSWORD,
-//   database: process.env.LOCAL_DATABASE,
-//   insecureAuth: process.env.LOCAL_INSECUREAUTH
-// });
 
 	pool.getConnection(function(err, connection) {
   	  if (err) {
