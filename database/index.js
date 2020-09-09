@@ -430,7 +430,6 @@ async function getVotes(getVotes, callback) {
 				callback('Joining tables for votes fails', null);
 		      } else {
 		      	console.log(`Success joining tables!`);
-		      	console.log(rows[0]);
 				callback(null, rows);
 			  }
 			// } catch (err) {
