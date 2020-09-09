@@ -7,6 +7,7 @@ const {
 	getGoals,
 	createGoal,
 	getSteps,
+	getVotes,
 	signUp,
 	signIn,
 	createStep,
@@ -341,6 +342,88 @@ router.post('/steps', async (req, res, next) => {
 		message: 'Token cannot be validated!'
 	});
 });
+
+
+
+
+
+
+/**
+* endpoint: /
+* method: POST
+* description: gets votes for a particular user and goal
+* responses: 
+*/
+router.post('/votes', async (req, res, next) => {
+	  checkToken(req, function(err, data) {
+		    if (err) {
+		        // error handling code goes here
+		        console.log(`Error: ${err}, ${data}`);
+		        // If token is not validated, skip to next router
+		        next('route');           
+		    } else {            
+		        // If token is validated, pass control to next middleware function in stack
+		        console.log(`Data: ${data}`);   
+		        next();
+		      }    
+		});
+	}, function (req, res, next) {
+
+	try {
+		getVotes(req.body, function(err, data) {
+		  // For first entry, the inserting goal query
+          if (err) {
+          	// error handling code goes here
+            console.log(`Error: ${err}`);
+          	if (err == 'Joining tables for votes fails') {
+          		res.json({
+					success: false,
+					message: 'Failed to join tables between users and votes'
+				}); 
+          	} else {
+              	res.json({
+					success: false,
+					message: 'Error in pool connecting'
+				}); 
+            }
+            next(err);           
+          } else {            
+            // code to execute on data retrieval
+            console.log(`Data: ${data}`); 
+            res.json({
+				success: true,
+				message: 'Succeeded in getting votes for user and goal',
+				data: data
+			});   
+          }    
+	    });
+	} catch (err) {
+		res.json({
+		    success: false,
+		    message: 'Cannot get votes for user and goal!'
+		});
+		next(err);
+	}
+});
+
+/**
+* endpoint: /:id
+* method: POST
+* description: if token authentication fails for getting steps for a goal
+* responses: 
+*/
+router.post('/votes', async (req, res, next) => {
+  	res.json({
+		success: false,
+		message: 'Token cannot be validated!'
+	});
+});
+
+
+
+
+
+
 
 /**
 * endpoint: /

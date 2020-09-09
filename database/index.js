@@ -141,7 +141,7 @@ async function getGoals(callback) {
 	  connection.query('SELECT * FROM goals;', (err, rows, fields) => {
 	  	connection.release();
 		if (err) {
-		  console.log(`Failure: ${err}`);
+		  console.log(`Failure getting goals: ${err}`);
 		  callback(err, 'MySQL connection error');
 		} else {
 		  console.log('Success getting goals');
@@ -208,7 +208,7 @@ async function createGoal(create, callback) {
 			VALUES (?, ?, ?);`, [create.goal, create.username, new Date()], (err, rows, fields) => {
 			  connection.release();
 			  if (err) {
-				console.log(`Goal inserting failure: ${err}`);
+				console.log(`Failure inserting goal: ${err}`);
 				parallelCallback('Error inserting new goal', null);
 		      } else {
 				console.log('Success inserting goal!');
@@ -247,7 +247,7 @@ async function createGoal(create, callback) {
 	      	PRIMARY KEY (id) ) AUTO_INCREMENT=1 CHARSET=utf8;`, [create.goal], (err, rows, fields) => {
 			  connection.release();
 			  if (err) {
-				console.log(`Goal tabling failure: ${err}`);
+				console.log(`Failure tabling goal: ${err}`);
 				parallelCallback('Error creating goal table', null);
 		      } else {
 				console.log('Success tabling goal!');
@@ -321,10 +321,10 @@ async function getSteps(getSteps, callback) {
 		  	  console.log('Releasing connection');
 		  	  connection.release();
 			  if (err) {
-				  console.log(`Fetching steps error: ${err}`);
+				  console.log(`Failure fetching steps: ${err}`);
 				  parallelCallback('Can\'t fetch steps', null);
 			  } else {
-			  	  console.log('Goal table steps located');
+			  	  console.log('Success fetching steps for goal!');
 			  	  console.log(rows);
 		  		  parallelCallback(null, rows);
 			  }
@@ -344,10 +344,10 @@ async function getSteps(getSteps, callback) {
 		  	  console.log('Releasing connection');
 		  	  connection.release();
 			  if (err) {
-				  console.log(`Retrieving goal username failure: ${err}`);
+				  console.log(`Failure retrieving goal username: ${err}`);
 				  parallelCallback('Couldn\'t retrieve associated username', null);
 			  } else {
-				  console.log('Retrieving goal username')
+				  console.log('Success retrieving goal username!')
 				  console.log(rows[0]);
 		  		  parallelCallback(null, rows);
 			  }
@@ -363,6 +363,91 @@ async function getSteps(getSteps, callback) {
 	 	callback(null, results);
 	});
 }
+
+
+
+
+
+
+
+async function getVotes(getVotes, callback) {
+
+	// const connection = mysql.createConnection({
+	//   host: process.env.REMOTE_HOST,
+	//   user: process.env.REMOTE_USER,
+	//   password: process.env.REMOTE_PASSWORD,
+	//   database: process.env.REMOTE_DATABASE,
+	//   insecureAuth: process.env.REMOTE_INSECUREAUTH
+	// });
+// const connection = mysql.createConnection({
+//   host: process.env.LOCAL_HOST,
+//   user: process.env.LOCAL_USER,
+//   password: process.env.LOCAL_PASSWORD,
+//   database: process.env.LOCAL_DATABASE,
+//   insecureAuth: process.env.LOCAL_INSECUREAUTH
+// });
+
+
+	// pool.getConnection(function(err, connection) {
+ //  	  if (err) {
+	//     console.error('Error in pool connecting: ' + err.stack);
+	//     callback(err, 'Error in pool connecting!');
+	//     return;
+	//   } 
+	//   console.log('Connected!');
+ //      console.log(`Creating: INSERT INTO goals (first_var, second_var, third_var) 
+	// 	VALUES ( \'${create.goal}\', ${create.username}...`);
+	//   connection.query(`INSERT INTO goals (goal, username, timeStamp) 
+	// 	VALUES (?, ?, ?);`, [create.goal, create.username, new Date()], (err, rows, fields) => {
+	// 	  connection.release();
+	// 	  if (err) {
+	// 		console.log(`Failure: ${err}`);
+	// 		callback(err, null);
+	//       } else {
+	// 		console.log('Success');
+	// 		callback(null, rows);
+	// 	  }
+	//   })
+	// });
+
+	pool.getConnection(function(err, connection) {
+  	  if (err) {
+	    console.error('Error in pool connecting: ' + err.stack);
+	    callback('Error in pool connecting!', null);
+	    return;
+	  } 
+	  console.log('Pool connected!');
+
+	  // SELECT votes.step, votes.endorsed FROM votes INNER JOIN users ON users.id=votes.id WHERE username='Dan' AND goal='tester';
+	  console.log(`Joining tables for votes: SELECT votes.step, votes.endorsed FROM votes INNER JOIN users ON users.id = votes.id WHERE username = \'${getVotes.username}\' AND goal = \'${getVotes.goal}\';`);
+
+	  connection.query('SELECT votes.step, votes.endorsed FROM votes INNER JOIN users ON users.id = votes.id WHERE username = ? AND goal = ?;', [getVotes.username, getVotes.goal], (err, rows, fields) => {
+			console.log('Releasing connection');
+			connection.release();
+			//try {  
+			  if (err) {
+				console.log(`Failure joining tables: ${err}`);
+				callback('Joining tables for votes fails', null);
+		      } else {
+		      	console.log(`Success joining tables!`);
+		      	console.log(rows[0]);
+				callback(null, rows);
+			  }
+			// } catch (err) {
+			// 	callback(err, 'Username has no match');
+			// }
+	  })
+	});
+
+}
+
+
+
+
+
+
+
+
 
 async function signUp(signup, callback) {
 
@@ -413,7 +498,7 @@ async function signUp(signup, callback) {
 						VALUES (?, ?, ?);`, [signup.username, signup.email, hash], (err, rows, fields) => {
 							if (err) {
 							  connection.release();
-							  console.log(`Failure: ${err}`);
+							  console.log(`Failure recording user: ${err}`);
 							  callback(err, 'MySQL connection error');
 							} else {
 							  console.log(`username inserted: ${signup.username}`);
@@ -422,7 +507,7 @@ async function signUp(signup, callback) {
 							  connection.query(`SELECT LAST_INSERT_ID();`, (err, rows, fields) => {
 							  	connection.release();
 							    if (err) {
-							      console.log(`Failure: ${err}`);
+							      console.log(`Failure returning last ID: ${err}`);
 							      callback(err, 'MySQL connection error');
 							    } else {
 							      console.log(`Returning last ID : ${rows[0]['LAST_INSERT_ID()']}`);
@@ -483,7 +568,7 @@ async function signIn(signin, callback) {
 	  		console.log(`Rows count: ${rows.length}`);
 			//try {  
 			  if (err || rows.length == 0) {
-				console.log(`Failure: ${err}`);
+				console.log(`Failure finding user: ${err}`);
 				if (err) {
 					callback(err, 'User doesn\'t exist');
 				} else {
@@ -559,7 +644,7 @@ async function createStep(prospectiveStep, callback) {
 			  if (err) {
 			  	console.log('Releasing connection');
 			  	connection.release();
-				console.log(`Failure: ${err}`);
+				console.log(`Failure finding goal: ${err}`);
 				callback('Goal doesn\'t exist', null);
 		      } else {
 		      	console.log(`Success: ${rows[0].goal}`);
@@ -573,7 +658,7 @@ async function createStep(prospectiveStep, callback) {
 						console.log('Releasing connection');
 		  	  			connection.release();  
 			  			if (err) {
-						  console.log(`Step inserting failure: ${err}`);
+						  console.log(`Failure inserting step: ${err}`);
 						  callback('Error inserting new step', null);
 		      			} else {
 						  console.log('Success inserting step!');
@@ -624,7 +709,7 @@ async function patchStep(specificStep, callback) {
 			//try {  
 			  if (err) {
 			  	connection.release();
-				console.log(`Failure: ${err}`);
+				console.log(`Failure finding goal: ${err}`);
 				callback('Goal doesn\'t exist', null);
 		      } else {
 		      	console.log(`Success: ${rows[0].goal}`);
@@ -633,7 +718,7 @@ async function patchStep(specificStep, callback) {
 					//try {  
 					  if (err) {
 					  	connection.release();
-						console.log(`Failure: ${err}`);
+						console.log(`Failure finding step: ${err}`);
 						callback('Step doesn\'t exist', null);
 				      } else {
 				      	// Record yesVotes and noVotes to use in following query, 'rows' field changes with future queries
@@ -745,6 +830,7 @@ module.exports = {
 	getGoals,
 	createGoal,
 	getSteps,
+	getVotes,
 	signUp,
 	signIn,
 	createStep,
