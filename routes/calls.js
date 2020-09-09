@@ -35,9 +35,9 @@ router.get('/', async (req, res, next) => {
 });
 
 /**
-* endpoint: /:id
+* endpoint: /token
 * method: GET
-* description: gets all the goals
+* description: checks if token is valid
 * responses: 
 */
 router.get('/token', async (req, res, next) => {
@@ -74,7 +74,7 @@ router.get('/token', async (req, res, next) => {
 });
 
 /**
-* endpoint: /:id
+* endpoint: /goals
 * method: GET
 * description: gets all the goals
 * responses: 
@@ -126,7 +126,7 @@ router.get('/goals', async (req, res, next) => {
 });
 
 /**
-* endpoint: /:id
+* endpoint: /goals
 * method: GET
 * description: if token authentication fails for getting goals
 * responses: 
@@ -138,62 +138,8 @@ router.get('/goals', async (req, res, next) => {
 	});
 });
 
-// /**
-// * endpoint: /:id
-// * method: GET
-// * description: gets data for particular goal
-// * responses: 
-// */
-// router.get('/:id', async (req, res, next) => {
-// 	// Validate token, and continue onwards if successful
-// 	checkToken(req, function(err, data) {
-// 		  if (err) {
-// 		      console.log(`Error: ${err}, ${data}`);
-// 		      // If token is not validated, skip to next router
-// 		      next('route');           
-// 		  } else {            
-// 		      // If token is validated, pass control to next middleware function in stack
-// 		      console.log(`Data: ${data}`);   
-// 		      next();
-// 		    }    
-// 		});
-// 	}, function (req, res, next) {
-// 		// Get the data for a specified object in database
-// 		try {
-// 			getData(req.params.id, function(err, data) {
-// 		        if (err) {
-// 		          // error handling code goes here
-// 		          console.log(`Error: ${err}`); 
-// 		          next(err);           
-// 		        } else {            
-// 		          // code to execute on data retrieval
-// 		          console.log(`Data: ${data}`); 
-// 		          res.json({
-// 		          	success: true,
-// 		          	data: data
-// 		          });  
-// 		        }    
-// 			  });
-// 		} catch (err) {
-// 			next(err);
-// 		}
-// });
-
-// /**
-// * endpoint: /:id
-// * method: GET
-// * description: if token authentication fails for getting a particular goal
-// * responses: 
-// */
-// router.get('/:id', async (req, res, next) => {
-//   	res.json({
-// 		success: false,
-// 		message: 'Token cannot be validated!'
-// 	});
-// });
-
 /**
-* endpoint: /
+* endpoint: /goal
 * method: POST
 * description: creates a goal
 * responses: 
@@ -255,7 +201,7 @@ router.post('/goal', async (req, res, next) => {
 });
 
 /**
-* endpoint: /:id
+* endpoint: /goal
 * method: POST
 * description: if token authentication fails for posting a goal
 * responses: 
@@ -268,7 +214,7 @@ router.post('/goal', async (req, res, next) => {
 });
 
 /**
-* endpoint: /
+* endpoint: /steps
 * method: POST
 * description: gets steps for a particular goal
 * responses: 
@@ -331,7 +277,7 @@ router.post('/steps', async (req, res, next) => {
 });
 
 /**
-* endpoint: /:id
+* endpoint: /steps
 * method: POST
 * description: if token authentication fails for getting steps for a goal
 * responses: 
@@ -344,7 +290,7 @@ router.post('/steps', async (req, res, next) => {
 });
 
 /**
-* endpoint: /:votes
+* endpoint: /votes
 * method: POST
 * description: gets votes for a particular user and goal
 * responses: 
@@ -402,9 +348,9 @@ router.post('/votes', async (req, res, next) => {
 });
 
 /**
-* endpoint: /:votes
+* endpoint: /votes
 * method: POST
-* description: gets votes for a particular user and goal
+* description: if token authentication fails for getting votes
 * responses: 
 */
 router.post('/votes', async (req, res, next) => {
@@ -415,7 +361,7 @@ router.post('/votes', async (req, res, next) => {
 });
 
 /**
-* endpoint: /
+* endpoint: /step
 * method: POST
 * description: adds step for a particular goal
 * responses: 
@@ -478,7 +424,7 @@ router.post('/step', async (req, res, next) => {
 });
 
 /**
-* endpoint: /:id
+* endpoint: /step
 * method: POST
 * description: if token authentication fails for adding step for a goal
 * responses: 
@@ -491,7 +437,7 @@ router.post('/step', async (req, res, next) => {
 });
 
 /**
-* endpoint: /
+* endpoint: /step
 * method: PATCH
 * description: increments or decrements count for a specific step
 * responses: 
@@ -575,9 +521,9 @@ router.patch('/step', async (req, res, next) => {
 });
 
 /**
-* endpoint: /:id
+* endpoint: /step
 * method: PATCH
-* description: increments or decrements count for a specific step
+* description: if token authentication fails for incrementing/decrementing count for a specific step
 * responses: 
 */
 router.patch('/step', async (req, res, next) => {
@@ -590,7 +536,7 @@ router.patch('/step', async (req, res, next) => {
 /**
 * endpoint: /signup
 * method: POST
-* description: 
+* description: signs up new user
 * responses: 
 */
 router.post('/signup', async (req, res, next) => {
@@ -624,6 +570,13 @@ router.post('/signup', async (req, res, next) => {
 	}
 });
 
+
+/**
+* endpoint: /signin
+* method: POST
+* description: signs in existing user
+* responses: 
+*/
 router.post('/signin', async (req, res, next) => {
   	try {
 		signIn(req.body, function(err, data) {
