@@ -477,7 +477,6 @@ async function createStep(prospectiveStep, callback) {
 
 }
 
-
 async function patchStep(specificStep, callback) {
 
 	pool.getConnection(function(err, connection) {
@@ -602,11 +601,6 @@ async function patchStep(specificStep, callback) {
 
 }
 
-
-
-
-
-
 async function negateStep(specificStep, callback) {
 
 	pool.getConnection(function(err, connection) {
@@ -691,12 +685,6 @@ async function negateStep(specificStep, callback) {
 	});
 
 }
-
-
-
-
-
-
 
 // check duplicates needed for goals/s teps
 

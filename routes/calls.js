@@ -534,13 +534,6 @@ router.patch('/step', async (req, res, next) => {
 	});
 });
 
-
-
-
-
-
-
-
 /**
 * endpoint: /step
 * method: PATCH
@@ -632,11 +625,6 @@ router.patch('/negateStep', async (req, res, next) => {
 		message: 'Token cannot be validated!'
 	});
 });
-
-
-
-
-
 
 /**
 * endpoint: /signup
