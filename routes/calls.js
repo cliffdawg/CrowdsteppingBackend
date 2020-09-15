@@ -12,6 +12,7 @@ const {
 	signIn,
 	createStep,
 	patchStep,
+	negateStep,
 	getNumber
 } = require('../database/index.js');
 
@@ -532,6 +533,109 @@ router.patch('/step', async (req, res, next) => {
 		message: 'Token cannot be validated!'
 	});
 });
+
+
+
+
+
+
+
+/**
+* endpoint: /step
+* method: PATCH
+* description: increments or decrements count for a specific step
+* responses: 
+*/
+router.patch('/negateStep', async (req, res, next) => {
+	  console.log(`Negate in backend, ${req.goal}, ${req.step}, ${req.endorsed}`);
+	  checkToken(req, function(err, data) {
+		    if (err) {
+		        // error handling code goes here
+		        console.log(`Error: ${err}, ${data}`);
+		        // If token is not validated, skip to next router
+		        next('route');           
+		    } else {            
+		        // If token is validated, pass control to next middleware function in stack
+		        console.log(`Data: ${data}`);   
+		        next();
+		      }    
+		});
+	}, function (req, res, next) {
+
+	try {
+		negateStep(req.body, function(err, data) {
+	        if (err) {
+	          // error handling code goes here
+		      console.log(`Error: ${err}, ${data}`); 
+			  if (err == 'Goal doesn\'t exist') {
+          		res.json({
+				  success: false,
+				  message: 'Failed to find a goal that matches'
+				}); 
+	          } else if (err == 'Step doesn\'t exist') {
+	          	res.json({
+				  success: false,
+				  message: 'Failed to find a step that matches'
+				}); 
+              } else if (err == 'Failed to decrement votes') {
+              	res.json({
+				  success: false,
+				  message: 'Failed to decrement vote for step'
+				}); 
+              } else if (err == 'Failed to set approval') {
+              	res.json({
+				  success: false,
+				  message: 'Failed to set approval status for step'
+				}); 
+              } else if (err == 'Failed to negate vote') {
+              	res.json({
+				  success: false,
+				  message: 'Failed to negate previous vote related to user'
+				}); 
+              } else {
+              	res.json({
+				  success: false,
+				  message: 'Error in pool connecting'
+				}); 
+              }
+	          next(err);           
+	        } else {            
+	          // code to execute on data retrieval
+	          console.log(`Data: ${data}`); 
+	          // The data received here is a packet of rows whose values
+	          // can be accessed with property ID's
+	          res.json({
+	           	success: true,
+	         	message: data
+	          });  
+	        }    
+		  });
+	} catch (err) {
+		res.json({
+		    success: false,
+		    message: 'Cannot patch negate step!'
+		});
+		next(err);
+	}
+});
+
+/**
+* endpoint: /step
+* method: PATCH
+* description: if token authentication fails for incrementing/decrementing count for a specific step
+* responses: 
+*/
+router.patch('/negateStep', async (req, res, next) => {
+  	res.json({
+		success: false,
+		message: 'Token cannot be validated!'
+	});
+});
+
+
+
+
+
 
 /**
 * endpoint: /signup
