@@ -716,6 +716,6 @@ module.exports = {
 	signIn,
 	createStep,
 	patchStep,
-	negateStep
+	negateStep,
 	getNumber
 };
