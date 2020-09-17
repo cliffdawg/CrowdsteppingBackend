@@ -165,16 +165,36 @@ router.post('/goal', async (req, res, next) => {
 		  // For first entry, the inserting goal query
           if (err) {
           	// error handling code goes here
-            console.log(`Get steps error: ${err}`);
-          	if (err == 'Error inserting new goal') {
+            console.log(`Get steps error: ${err}, ${data}`);
+          	if (err == 'Error checking for goal') {
           		res.json({
-				success: false,
-				message: 'Failed to insert new goal'
+					success: false,
+					message: 'Failed to check for goal'
+				}); 
+          	} else if (err == 'Goal already exists!') {
+          		res.json({
+					success: false,
+					message: 'Goal to insert is already present'
+				}); 
+          	} else if (err == 'Error inserting new goal') {
+          		res.json({
+					success: false,
+					message: 'Failed to insert new goal'
+				}); 
+          	} else if (err == 'Error checking table for goal') {
+          		res.json({
+					success: false,
+					message: 'Failed to check for goal table'
+				}); 
+          	} else if (err == 'Goal table already exists!') {
+          		res.json({
+					success: false,
+					message: 'Goal table to insert is already present'
 				}); 
           	} else if (err == 'Error creating goal table') {
           		res.json({
-				success: false,
-				message: 'Failed to create goal table'
+					success: false,
+					message: 'Failed to create goal table'
 				}); 
           	} else {
               	res.json({

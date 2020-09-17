@@ -135,22 +135,39 @@ async function createGoal(create, callback) {
 		    console.error('Error in pool connecting: ' + err.stack);
 		    parallelCallback('Error in pool connecting!', null);
 		    return;
-		  } 
-		  console.log('Connected!');
-	      console.log(`Creating: INSERT INTO goals (first_var, second_var, third_var) 
-			VALUES ( \'${create.goal}\', ${create.username}...`);
-		  connection.query(`INSERT INTO goals (goal, username, timeStamp) 
-			VALUES (?, ?, ?);`, [create.goal, create.username, new Date()], (err, rows, fields) => {
-			  connection.release();
-			  if (err) {
-				console.log(`Failure inserting goal: ${err}`);
-				parallelCallback('Error inserting new goal', null);
-		      } else {
-				console.log('Success inserting goal!');
-				parallelCallback(null, rows);
-			  }
-		  })
+		  } else {
+		    console.log('Connected!');
+		    connection.query(`SELECT * FROM users WHERE goal = ?;`, [create.goal], (err, rows, fields) => {
+		    	if (err) {
+		  			connection.release();
+					console.log(`Failure checking goal existence: ${err}`);
+					parallelCallback('Error checking for goal', null);
+		  		} else {
+		  			// Both valid/invalid username reaches this closure
+			  		console.log(`Success: ${rows}`);
+			  		if (Object.keys(rows).length !== 0) {
+			  	  	  connection.release();
+			  	  	  console.log('Goal is present')
+			  	  	  parallelCallback('Goal already exists!', null);
+			  		} else {
+					  console.log(`Creating: INSERT INTO goals (first_var, second_var, third_var) VALUES ( \'${create.goal}\', ${create.username}...`);
+		  			  connection.query(`INSERT INTO goals (goal, username, timeStamp) 
+						  VALUES (?, ?, ?);`, [create.goal, create.username, new Date()], (err, rows, fields) => {
+			  				  connection.release();
+			  				  if (err) {
+								  console.log(`Failure inserting goal: ${err}`);
+								  parallelCallback('Error inserting new goal', null);
+		      				  } else {
+								  console.log('Success inserting goal!');
+								  parallelCallback(null, rows);
+			  				  }
+		  			  })
+					}
+				}
+			});
+		  }
 		});
+
     },
     function(parallelCallback) {
         pool.getConnection(function(err, connection) {
@@ -160,36 +177,52 @@ async function createGoal(create, callback) {
 		    return;
 		  } 
 		  console.log('Connected!');
-		  // Create the specific table for the goal that will hold its steps
-	      console.log(`Creating: CREATE TABLE ${create.goal}( id INT(1) unsigned NOT NULL AUTO_INCREMENT, 
-	      	step VARCHAR(500) NOT NULL DEFAULT '', 
-	      	username VARCHAR(50) NOT NULL DEFAULT '', 
-	      	timeStamp TIMESTAMP DEFAULT 0, 
-	      	stepsIndex DECIMAL(40,20) NOT NULL DEFAULT 0,
-	      	approved BOOLEAN NOT NULL DEFAULT FALSE,
-	      	yesVotes INT NOT NULL DEFAULT 0,
-	      	noVotes INT NOT NULL DEFAULT 0,
-	      	PRIMARY KEY (id) ) AUTO_INCREMENT=1 CHARSET=utf8;`);
-	      // The 'approved' column does not mean it has a default value of FALSE for every step, but rather for the table template
-		  connection.query(`CREATE TABLE ??( id INT(1) unsigned NOT NULL AUTO_INCREMENT, 
-	      	step VARCHAR(500) NOT NULL DEFAULT '', 
-	      	username VARCHAR(50) NOT NULL DEFAULT '', 
-	      	timeStamp TIMESTAMP DEFAULT 0, 
-	      	stepsIndex DECIMAL(40,20) NOT NULL DEFAULT 0,
-	      	approved BOOLEAN NOT NULL DEFAULT FALSE,
-	      	yesVotes INT NOT NULL DEFAULT 0,
-	      	noVotes INT NOT NULL DEFAULT 0,
-	      	PRIMARY KEY (id) ) AUTO_INCREMENT=1 CHARSET=utf8;`, [create.goal], (err, rows, fields) => {
-			  connection.release();
-			  if (err) {
-				console.log(`Failure tabling goal: ${err}`);
-				parallelCallback('Error creating goal table', null);
-		      } else {
-				console.log('Success tabling goal!');
-				parallelCallback(null, rows);
-			  }
-		  })
-		});
+		  connection.query(`SELECT * FROM information_schema.tables WHERE 
+		  	table_schema = 'heroku_a5d644126ee20ea' AND table_name = ?;`, [create.goal], (err, rows, fields) => {
+		  		if (err) {
+		  	  		connection.release();
+			  		console.log(`Failure checking table existence for goal: ${err}`);
+			  		parallelCallback('Error checking table for goal', null);
+		  		} else {
+		  	  		// Both valid/invalid username reaches this closure
+			  		console.log(`Success: ${rows}`);
+			  		if (Object.keys(rows).length !== 0) {
+			  		  connection.release();
+			  		  console.log('Goal table is present')
+			  		  parallelCallback('Goal table already exists!', null);
+			  		} else {
+					  // Create the specific table for the goal that will hold its steps
+	      			  console.log(`Creating: CREATE TABLE ${create.goal}( id INT(1) unsigned NOT NULL AUTO_INCREMENT, 
+	      				step VARCHAR(500) NOT NULL DEFAULT '', 
+	      				username VARCHAR(50) NOT NULL DEFAULT '', 
+	      				timeStamp TIMESTAMP DEFAULT 0, 
+	      				stepsIndex DECIMAL(40,20) NOT NULL DEFAULT 0,
+	      				approved BOOLEAN NOT NULL DEFAULT FALSE,
+	      				yesVotes INT NOT NULL DEFAULT 0,
+	      				noVotes INT NOT NULL DEFAULT 0,
+	      				PRIMARY KEY (id) ) AUTO_INCREMENT=1 CHARSET=utf8;`);
+	      			  // The 'approved' column does not mean it has a default value of FALSE for every step, but rather for the table template
+		  			  connection.query(`CREATE TABLE ??( id INT(1) unsigned NOT NULL AUTO_INCREMENT, 
+	      				step VARCHAR(500) NOT NULL DEFAULT '', 
+	      				username VARCHAR(50) NOT NULL DEFAULT '', 
+	      				timeStamp TIMESTAMP DEFAULT 0, 
+	      				stepsIndex DECIMAL(40,20) NOT NULL DEFAULT 0,
+	      				approved BOOLEAN NOT NULL DEFAULT FALSE,
+	      				yesVotes INT NOT NULL DEFAULT 0,
+	      				noVotes INT NOT NULL DEFAULT 0,
+	      				PRIMARY KEY (id) ) AUTO_INCREMENT=1 CHARSET=utf8;`, [create.goal], (err, rows, fields) => {
+			  			  connection.release();
+			  			  if (err) {
+							console.log(`Failure tabling goal: ${err}`);
+							parallelCallback('Error creating goal table', null);
+		      			  } else {
+							console.log('Success tabling goal!');
+							parallelCallback(null, rows);
+			  			  }
+		  			  })
+					}
+				}
+		  });
     }],
 	// Optional callback that is immediately called with error when one passed to parallelCallback, and waits for all the results of tasks to be gathered
 	function(err, results) {
