@@ -137,7 +137,7 @@ async function createGoal(create, callback) {
 		    return;
 		  } else {
 		    console.log('Connected!');
-		    connection.query(`SELECT * FROM users WHERE goal = ?;`, [create.goal], (err, rows, fields) => {
+		    connection.query(`SELECT * FROM goals WHERE goal = ?;`, [create.goal], (err, rows, fields) => {
 		    	if (err) {
 		  			connection.release();
 					console.log(`Failure checking goal existence: ${err}`);
