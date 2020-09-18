@@ -167,7 +167,6 @@ async function createGoal(create, callback) {
 			});
 		  }
 		});
-
     },
     function(parallelCallback) {
         pool.getConnection(function(err, connection) {
@@ -222,7 +221,8 @@ async function createGoal(create, callback) {
 		  			  })
 					}
 				}
-		  });
+		  })
+		});
     }],
 	// Optional callback that is immediately called with error when one passed to parallelCallback, and waits for all the results of tasks to be gathered
 	function(err, results) {
