@@ -289,9 +289,10 @@ async function getSteps(getSteps, callback) {
 	function(err, results) {
 		if (err) {
 			callback(err, null);
-		}
-	    // Errors and results stacked in an array [0],[1]
-	 	callback(null, results);
+		} else {
+	    	// Errors and results stacked in an array [0],[1]
+	 		callback(null, results);
+	 	}
 	});
 }
 
@@ -613,9 +614,10 @@ async function patchStep(specificStep, callback) {
 									  function(err, results) {
 									  	  if (err) {
 									  		  callback(err, null);
-									  	  }
-	    								  // Errors and results stacked in an array [0],[1]
-	 									  callback(null, results);
+									  	  } else {
+	    								  	  // Errors and results stacked in an array [0],[1]
+	 									  	  callback(null, results);
+	 									  }
 									  });
 									}
 								})
