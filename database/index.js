@@ -229,6 +229,7 @@ async function createGoal(create, callback) {
 		if (err) {
 			callback(err, null);
 		}
+		console.log('DOinaoiaSaknsl the results callbacl');
 	    // Errors and results stacked in an array [0],[1]
 	 	callback(null, results);
 	});
