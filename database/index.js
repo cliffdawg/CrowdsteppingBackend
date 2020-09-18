@@ -144,7 +144,7 @@ async function createGoal(create, callback) {
 					parallelCallback('Error checking for goal', null);
 		  		} else {
 		  			// Both valid/invalid username reaches this closure
-			  		console.log(`Success: ${rows}`);
+			  		console.log(`Success goal: ${rows}`);
 			  		if (Object.keys(rows).length !== 0) {
 			  	  	  connection.release();
 			  	  	  console.log('Goal is present')
@@ -184,7 +184,7 @@ async function createGoal(create, callback) {
 			  		parallelCallback('Error checking table for goal', null);
 		  		} else {
 		  	  		// Both valid/invalid username reaches this closure
-			  		console.log(`Success: ${rows}`);
+			  		console.log(`Success table: ${rows}`);
 			  		if (Object.keys(rows).length !== 0) {
 			  		  connection.release();
 			  		  console.log('Goal table is present')
