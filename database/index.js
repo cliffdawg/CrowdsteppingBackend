@@ -274,10 +274,14 @@ async function getSteps(getSteps, callback) {
 		  connection.query(`SELECT * FROM goals WHERE goal = ?;`, [getSteps.goal], (err, rows, fields) => {
 		  	  console.log('Releasing connection');
 		  	  connection.release();
-			  if (err) {
-				  console.log(`Failure retrieving goal username: ${err}`);
-				  parallelCallback('Couldn\'t retrieve associated username', null);
-			  } else {
+			  if (err || rows.length == 0) {
+				console.log(`Failure retrieving goal username: ${err}`);
+				if (err) {
+					parallelCallback('Error retrieving goal username', null);
+				} else {
+			    	parallelCallback('Associated username not found', null);
+				}
+		      } else {
 				  console.log('Success retrieving goal username!')
 				  console.log(rows[0]);
 		  		  parallelCallback(null, rows);
@@ -420,7 +424,7 @@ async function signIn(signin, callback) {
 			  if (err || rows.length == 0) {
 				console.log(`Failure finding user: ${err}`);
 				if (err) {
-					callback(err, 'User doesn\'t exist');
+					callback(err, 'Error finding user');
 				} else {
 			    	callback('Placeholder error', 'User doesn\'t exist');
 				}
@@ -476,37 +480,53 @@ async function createStep(prospectiveStep, callback) {
 
 	  connection.query('SELECT * FROM goals WHERE goal = ?;', [prospectiveStep.goal], (err, rows, fields) => {
 			//try {  
-			  if (err) {
-			  	console.log('Releasing connection');
-			  	connection.release();
-				console.log(`Failure finding goal: ${err}`);
-				callback('Goal doesn\'t exist', null);
+			  if (err || rows.length == 0) {
+				console.log(`Failure checking for goal: ${err}`);
+				if (err) {
+					callback('Error checking for goal', null);
+				} else {
+			    	callback('Goal doesn\'t exist', null);
+				}
 		      } else {
-		      	console.log(`Success: ${rows[0].goal}`);
-				console.log(`Creating: INSERT INTO ${rows[0].goal} (step, username, timeStamp, stepsIndex, approved, yesVotes, noVotes) 
-			VALUES ( \'${prospectiveStep.step}\', ${prospectiveStep.username}, ${prospectiveStep.stepsIndex}, true...`);
-
-				// 
-				connection.query(`INSERT INTO ?? (step, username, timeStamp, stepsIndex, approved, yesVotes, noVotes) 
-						VALUES (?, ?, ?, ?, ?, ?, ?);`, [rows[0].goal, prospectiveStep.step, prospectiveStep.username, new Date(), prospectiveStep.stepsIndex, 1, 1, 0], (err, rows, fields) => {
+		      	console.log(`Success: ${prospectiveStep.goal}`);
+		      	connection.query(`SELECT * FROM ?? WHERE step = ?;`, [prospectiveStep.goal, prospectiveStep.step], (err, rows, fields) => {
+		  			if (err) {
+			  			connection.release();
+						console.log(`Failure checking step existence: ${err}`);
+						callback('Error checking for step', null);
+		  			} else {
+		  	  			// Both valid/invalid username reaches this closure
+			  			console.log(`Success: ${rows}`);
+			  			if (Object.keys(rows).length !== 0) {
+			  			  connection.release();
+			  			  console.log('Step is present')
+			  			  callback('Step already exists!', null);
+			  			} else {
+						  console.log(`Creating: INSERT INTO ${prospectiveStep.goal} (step, username, timeStamp, stepsIndex, approved, yesVotes, noVotes) 
+							  VALUES ( \'${prospectiveStep.step}\', \'${prospectiveStep.username}\', \'${prospectiveStep.stepsIndex}\', true...`);
+						  connection.query(`INSERT INTO ?? (step, username, timeStamp, stepsIndex, approved, yesVotes, noVotes) 
+							  VALUES (?, ?, ?, ?, ?, ?, ?);`, [prospectiveStep.goal, prospectiveStep.step, prospectiveStep.username, new Date(), prospectiveStep.stepsIndex, 1, 1, 0], (err, rows, fields) => {
 					//try {
-						console.log('Releasing connection');
-		  	  			connection.release();  
-			  			if (err) {
-						  console.log(`Failure inserting step: ${err}`);
-						  callback('Error inserting new step', null);
-		      			} else {
-						  console.log('Success inserting step!');
-						  callback(null, rows);
-			  			}
+								  console.log('Releasing connection');
+		  	  					  connection.release();  
+			  					  if (err) {
+						  			console.log(`Failure inserting step: ${err}`);
+						  			callback('Error inserting new step', null);
+		      					  } else {
+						  			console.log('Success inserting step!');
+						  			callback(null, rows);
+			  					  }
 					// } catch (err) {
 					// 	callback(err, 'Username has no match');
 					// }
-			  	})
-			  }
+			  			  })
+						}
+			  		}
 			// } catch (err) {
 			// 	callback(err, 'Username has no match');
 			// }
+	  			})
+		      }
 	  })
 	});
 
@@ -526,20 +546,26 @@ async function patchStep(specificStep, callback) {
 
 	  connection.query('SELECT * FROM goals WHERE goal = ?;', [specificStep.goal], (err, rows, fields) => {
 			//try {  
-			  if (err) {
-			  	connection.release();
-				console.log(`Failure finding goal: ${err}`);
-				callback('Goal doesn\'t exist', null);
+			  if (err || rows.length == 0) {
+				console.log(`Failure checking for goal: ${err}`);
+				if (err) {
+					callback('Error checking for goal', null);
+				} else {
+			    	callback('Goal doesn\'t exist', null);
+				}
 		      } else {
 		      	console.log(`Success: ${rows[0].goal}`);
 				console.log(`Finding step: SELECT * FROM ${rows[0].goal} WHERE step = \'${specificStep.step}\';`);
 				connection.query('SELECT * FROM ?? WHERE step = ?;', [rows[0].goal, specificStep.step], (err, rows, fields) => {
 					//try {  
-					  if (err) {
-					  	connection.release();
-						console.log(`Failure finding step: ${err}`);
-						callback('Step doesn\'t exist', null);
-				      } else {
+					  if (err || rows.length == 0) {
+						console.log(`Failure finding step : ${err}`);
+						if (err) {
+						  callback('Error finding step', null);
+						} else {
+			    		  callback('Step doesn\'t exist', null);
+						}
+		      		  } else {
 				      	// Record yesVotes and noVotes to use in following query, 'rows' field changes with future queries
 				      	var currentYesVotes = rows[0].yesVotes;
 				      	var currentNoVotes = rows[0].noVotes;
@@ -651,20 +677,26 @@ async function negateStep(specificStep, callback) {
 
 	  connection.query('SELECT * FROM goals WHERE goal = ?;', [specificStep.goal], (err, rows, fields) => {
 			//try {  
-			  if (err) {
-			  	connection.release();
-				console.log(`Failure finding goal: ${err}`);
-				callback('Goal doesn\'t exist', null);
+			  if (err || rows.length == 0) {
+				console.log(`Failure checking for goal: ${err}`);
+				if (err) {
+					callback('Error checking for goal', null);
+				} else {
+			    	callback('Goal doesn\'t exist', null);
+				}
 		      } else {
 		      	console.log(`Success: ${rows[0].goal}`);
 				console.log(`Finding step: SELECT * FROM ${rows[0].goal} WHERE step = \'${specificStep.step}\';`);
 				connection.query('SELECT * FROM ?? WHERE step = ?;', [rows[0].goal, specificStep.step], (err, rows, fields) => {
 					//try {  
-					  if (err) {
-					  	connection.release();
-						console.log(`Failure finding step: ${err}`);
-						callback('Step doesn\'t exist', null);
-				      } else {
+					  if (err || rows.length == 0) {
+						console.log(`Failure finding step : ${err}`);
+						if (err) {
+						  callback('Error finding step', null);
+						} else {
+			    		  callback('Step doesn\'t exist', null);
+						}
+		      		  } else {
 				      	// Record yesVotes and noVotes to use in following query, 'rows' field changes with future queries
 				      	var currentYesVotes = rows[0].yesVotes;
 				      	var currentNoVotes = rows[0].noVotes;

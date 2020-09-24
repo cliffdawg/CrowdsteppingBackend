@@ -266,7 +266,12 @@ router.post('/steps', async (req, res, next) => {
 					success: false,
 					message: 'Failed to fetch goal\'s steps'
 				}); 
-          	} else if (err == 'Couldn\'t retrieve associated username') {
+          	} else if (err == 'Error retrieving goal username') {
+          		res.json({
+					success: false,
+					message: 'Failed to try and retrieve goal\'s associated username'
+				}); 
+          	} else if (err == 'Associated username not found') {
           		res.json({
 					success: false,
 					message: 'Failed to find goal\'s associated username'
@@ -408,10 +413,25 @@ router.post('/step', async (req, res, next) => {
           if (err) {
           	// error handling code goes here
             console.log(`Error: ${err}`);
-          	if (err == 'Goal doesn\'t exist') {
+          	if (err == 'Error checking for goal') {
+          		res.json({
+					success: false,
+					message: 'Failed to check for existence of goal'
+				}); 
+          	} else if (err == 'Goal doesn\'t exist') {
           		res.json({
 					success: false,
 					message: 'Failed to find step\'s associated goal'
+				}); 
+          	} else if (err == 'Error checking for step') {
+          		res.json({
+					success: false,
+					message: 'Failed to check for existence of step'
+				}); 
+          	} else if (err == 'Step already exists!') {
+          		res.json({
+					success: false,
+					message: 'Step to insert already exists'
 				}); 
           	} else if (err == 'Error inserting new step') {
           		res.json({
@@ -484,12 +504,22 @@ router.patch('/step', async (req, res, next) => {
 	        if (err) {
 	          // error handling code goes here
 		      console.log(`Error: ${err}, ${data}`); 
-			  if (err == 'Goal doesn\'t exist') {
+			  if (err == 'Error checking for goal') {
+          		res.json({
+				  success: false,
+				  message: 'Failed to check for a goal that matches'
+				}); 
+	          } else if (err == 'Goal doesn\'t exist') {
           		res.json({
 				  success: false,
 				  message: 'Failed to find a goal that matches'
 				}); 
-	          } else if (err == 'Step doesn\'t exist') {
+	          }  else if (err == 'Error finding step') {
+	          	res.json({
+				  success: false,
+				  message: 'Failed to try to find a step that matches'
+				}); 
+              } else if (err == 'Step doesn\'t exist') {
 	          	res.json({
 				  success: false,
 				  message: 'Failed to find a step that matches'
@@ -581,12 +611,22 @@ router.patch('/negateStep', async (req, res, next) => {
 	        if (err) {
 	          // error handling code goes here
 		      console.log(`Error: ${err}, ${data}`); 
-			  if (err == 'Goal doesn\'t exist') {
+			  if (err == 'Error checking for goal') {
+          		res.json({
+				  success: false,
+				  message: 'Failed to check for a goal that matches'
+				}); 
+	          } else if (err == 'Goal doesn\'t exist') {
           		res.json({
 				  success: false,
 				  message: 'Failed to find a goal that matches'
 				}); 
-	          } else if (err == 'Step doesn\'t exist') {
+	          } else if (err == 'Error finding step') {
+	          	res.json({
+				  success: false,
+				  message: 'Failed to try to find a step that matches'
+				}); 
+              } else if (err == 'Step doesn\'t exist') {
 	          	res.json({
 				  success: false,
 				  message: 'Failed to find a step that matches'
@@ -714,7 +754,7 @@ router.post('/signin', async (req, res, next) => {
 	} catch (err) {
 		res.json({
 		    success: false,
-		    message: 'Username has no match'
+		    message: 'Cannot sign in!'
 		});
 		next(err);
 	}
