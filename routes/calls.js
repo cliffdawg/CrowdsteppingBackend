@@ -68,7 +68,7 @@ router.get('/token', async (req, res, next) => {
 	} catch (err) {
 		res.json({
 		    success: false,
-		    message: 'Token cannot be validated'
+		    message: 'Token cannot be validated!'
 		});
 		next(err);
 	}
