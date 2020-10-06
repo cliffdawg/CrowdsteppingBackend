@@ -310,24 +310,19 @@ async function getVotes(getVotes, callback) {
 	  } 
 	  console.log('Pool connected!');
 
-	  // SELECT votes.step, votes.endorsed FROM votes INNER JOIN users ON users.id=votes.id WHERE username='Dan' AND goal='tester';
 	  console.log(`Joining tables for votes: SELECT votes.step, votes.endorsed FROM votes INNER JOIN users ON users.id = votes.id WHERE username = \'${getVotes.username}\' AND goal = \'${getVotes.goal}\';`);
 
 	  connection.query('SELECT votes.step, votes.endorsed FROM votes INNER JOIN users ON users.id = votes.id WHERE username = ? AND goal = ?;', [getVotes.username, getVotes.goal], (err, rows, fields) => {
 			console.log('Releasing connection');
-			connection.release();
-			//try {  
-			  if (err) {
-				console.log(`Failure joining tables: ${err}`);
-				callback('Joining tables for votes fails', null);
-		      } else {
-		      	console.log(`Success joining tables!`);
-		      	console.log(rows);
-				callback(null, rows);
-			  }
-			// } catch (err) {
-			// 	callback(err, 'Username has no match');
-			// }
+			connection.release(); 
+			if (err) {
+			  console.log(`Failure joining tables: ${err}`);
+			  callback('Joining tables for votes fails', null);
+		    } else {
+		      console.log(`Success joining tables!`);
+		      console.log(rows);
+			  callback(null, rows);
+			}
 	  })
 	});
 
@@ -420,7 +415,6 @@ async function signIn(signin, callback) {
 	  connection.query('SELECT id, username, email, passHash FROM users WHERE username = ?;', [signin.username], (err, rows, fields) => {
 	  		connection.release();
 	  		console.log(`Rows count: ${rows.length}`);
-			//try {  
 			  if (err || rows.length == 0) {
 				console.log(`Failure finding user: ${err}`);
 				if (err) {
@@ -458,9 +452,6 @@ async function signIn(signin, callback) {
 				    
 				});
 			  }
-			// } catch (err) {
-			// 	callback(err, 'Username has no match');
-			// }
 	  })
 	});
 
@@ -479,7 +470,6 @@ async function createStep(prospectiveStep, callback) {
 	  console.log(`Finding goal: SELECT * FROM goals WHERE goal = \'${prospectiveStep.goal}\';`);
 
 	  connection.query('SELECT * FROM goals WHERE goal = ?;', [prospectiveStep.goal], (err, rows, fields) => {
-			//try {  
 			  if (err || rows.length == 0) {
 				console.log(`Failure checking for goal: ${err}`);
 				if (err) {
@@ -506,7 +496,6 @@ async function createStep(prospectiveStep, callback) {
 							  VALUES ( \'${prospectiveStep.step}\', \'${prospectiveStep.username}\', \'${prospectiveStep.stepsIndex}\', true...`);
 						  connection.query(`INSERT INTO ?? (step, username, timeStamp, stepsIndex, approved, yesVotes, noVotes) 
 							  VALUES (?, ?, ?, ?, ?, ?, ?);`, [prospectiveStep.goal, prospectiveStep.step, prospectiveStep.username, new Date(), prospectiveStep.stepsIndex, 1, 1, 0], (err, rows, fields) => {
-					//try {
 								  console.log('Releasing connection');
 		  	  					  connection.release();  
 			  					  if (err) {
@@ -516,15 +505,9 @@ async function createStep(prospectiveStep, callback) {
 						  			console.log('Success inserting step!');
 						  			callback(null, rows);
 			  					  }
-					// } catch (err) {
-					// 	callback(err, 'Username has no match');
-					// }
 			  			  })
 						}
 			  		}
-			// } catch (err) {
-			// 	callback(err, 'Username has no match');
-			// }
 	  			})
 		      }
 	  })
@@ -545,7 +528,6 @@ async function patchStep(specificStep, callback) {
 	  console.log(`Finding goal: SELECT * FROM goals WHERE goal = \'${specificStep.goal}\';`);
 
 	  connection.query('SELECT * FROM goals WHERE goal = ?;', [specificStep.goal], (err, rows, fields) => {
-			//try {  
 			  if (err || rows.length == 0) {
 				console.log(`Failure checking for goal: ${err}`);
 				if (err) {
@@ -556,8 +538,7 @@ async function patchStep(specificStep, callback) {
 		      } else {
 		      	console.log(`Success: ${rows[0].goal}`);
 				console.log(`Finding step: SELECT * FROM ${rows[0].goal} WHERE step = \'${specificStep.step}\';`);
-				connection.query('SELECT * FROM ?? WHERE step = ?;', [rows[0].goal, specificStep.step], (err, rows, fields) => {
-					//try {  
+				connection.query('SELECT * FROM ?? WHERE step = ?;', [rows[0].goal, specificStep.step], (err, rows, fields) => {  
 					  if (err || rows.length == 0) {
 						console.log(`Failure finding step : ${err}`);
 						if (err) {
@@ -649,15 +630,9 @@ async function patchStep(specificStep, callback) {
 								})
 							}
 						})
-					// } catch (err) {
-					// 	callback(err, 'Username has no match');
-					// }
 					  }
 			  	})
 			  }
-			// } catch (err) {
-			// 	callback(err, 'Username has no match');
-			// }
 	  })
 	});
 
@@ -676,7 +651,6 @@ async function negateStep(specificStep, callback) {
 	  console.log(`Finding goal: SELECT * FROM goals WHERE goal = \'${specificStep.goal}\';`);
 
 	  connection.query('SELECT * FROM goals WHERE goal = ?;', [specificStep.goal], (err, rows, fields) => {
-			//try {  
 			  if (err || rows.length == 0) {
 				console.log(`Failure checking for goal: ${err}`);
 				if (err) {
@@ -688,7 +662,6 @@ async function negateStep(specificStep, callback) {
 		      	console.log(`Success: ${rows[0].goal}`);
 				console.log(`Finding step: SELECT * FROM ${rows[0].goal} WHERE step = \'${specificStep.step}\';`);
 				connection.query('SELECT * FROM ?? WHERE step = ?;', [rows[0].goal, specificStep.step], (err, rows, fields) => {
-					//try {  
 					  if (err || rows.length == 0) {
 						console.log(`Failure finding step : ${err}`);
 						if (err) {
@@ -740,24 +713,13 @@ async function negateStep(specificStep, callback) {
 								})
 							}
 						})
-					// } catch (err) {
-					// 	callback(err, 'Username has no match');
-					// }
 					  }
 			  	})
 			  }
-			// } catch (err) {
-			// 	callback(err, 'Username has no match');
-			// }
 	  })
 	});
 
 }
-
-
-
-
-
 
 async function switchStep(specificStep, callback) {
 
@@ -772,7 +734,6 @@ async function switchStep(specificStep, callback) {
 	  console.log(`Finding goal: SELECT * FROM goals WHERE goal = \'${specificStep.goal}\';`);
 
 	  connection.query('SELECT * FROM goals WHERE goal = ?;', [specificStep.goal], (err, rows, fields) => {
-			//try {  
 			  if (err || rows.length == 0) {
 				console.log(`Failure checking for goal: ${err}`);
 				if (err) {
@@ -783,8 +744,7 @@ async function switchStep(specificStep, callback) {
 		      } else {
 		      	console.log(`Success: ${rows[0].goal}`);
 				console.log(`Finding step: SELECT * FROM ${rows[0].goal} WHERE step = \'${specificStep.step}\';`);
-				connection.query('SELECT * FROM ?? WHERE step = ?;', [rows[0].goal, specificStep.step], (err, rows, fields) => {
-					//try {  
+				connection.query('SELECT * FROM ?? WHERE step = ?;', [rows[0].goal, specificStep.step], (err, rows, fields) => { 
 					  if (err || rows.length == 0) {
 						console.log(`Failure finding step : ${err}`);
 						if (err) {
@@ -877,25 +837,13 @@ async function switchStep(specificStep, callback) {
 								})
 							}
 						})
-					// } catch (err) {
-					// 	callback(err, 'Username has no match');
-					// }
 					  }
 			  	})
 			  }
-			// } catch (err) {
-			// 	callback(err, 'Username has no match');
-			// }
 	  })
 	});
 
 }
-
-
-
-
-
-
 
 async function getNumber() {
 	console.log('Number');
