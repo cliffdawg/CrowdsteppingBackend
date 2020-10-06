@@ -13,6 +13,7 @@ const {
 	createStep,
 	patchStep,
 	negateStep,
+	switchStep,
 	getNumber
 } = require('../database/index.js');
 
@@ -585,9 +586,9 @@ router.patch('/step', async (req, res, next) => {
 });
 
 /**
-* endpoint: /step
+* endpoint: /negateStep
 * method: PATCH
-* description: increments or decrements count for a specific step
+* description: negates increment or decrement for a specific step
 * responses: 
 */
 router.patch('/negateStep', async (req, res, next) => {
@@ -674,9 +675,9 @@ router.patch('/negateStep', async (req, res, next) => {
 });
 
 /**
-* endpoint: /step
+* endpoint: /negateStep
 * method: PATCH
-* description: if token authentication fails for incrementing/decrementing count for a specific step
+* description: if token authentication fails for negating increment or decrement for a specific step
 * responses: 
 */
 router.patch('/negateStep', async (req, res, next) => {
@@ -685,6 +686,125 @@ router.patch('/negateStep', async (req, res, next) => {
 		message: 'Token cannot be validated!'
 	});
 });
+
+
+
+
+
+
+
+/**
+* endpoint: /switchStep
+* method: PATCH
+* description: switches increment or decrement for a specific step
+* responses: 
+*/
+router.patch('/switchStep', async (req, res, next) => {
+	  console.log(`Switch in backend, ${req.goal}, ${req.step}, ${req.endorsed}`);
+	  checkToken(req, function(err, data) {
+		    if (err) {
+		        // error handling code goes here
+		        console.log(`Error: ${err}, ${data}`);
+		        // If token is not validated, skip to next router
+		        next('route');           
+		    } else {            
+		        // If token is validated, pass control to next middleware function in stack
+		        console.log(`Data: ${data}`);   
+		        next();
+		      }    
+		});
+	}, function (req, res, next) {
+
+	try {
+		switchStep(req.body, function(err, data) {
+	        if (err) {
+	          // error handling code goes here
+		      console.log(`Error: ${err}, ${data}`); 
+			  if (err == 'Error checking for goal') {
+          		res.json({
+				  success: false,
+				  message: 'Failed to check for a goal that matches'
+				}); 
+	          } else if (err == 'Goal doesn\'t exist') {
+          		res.json({
+				  success: false,
+				  message: 'Failed to find a goal that matches'
+				}); 
+	          } else if (err == 'Error finding step') {
+	          	res.json({
+				  success: false,
+				  message: 'Failed to try to find a step that matches'
+				}); 
+              } else if (err == 'Step doesn\'t exist') {
+	          	res.json({
+				  success: false,
+				  message: 'Failed to find a step that matches'
+				}); 
+              } else if (err == 'Failed to increment/decrement votes') {
+              	res.json({
+				  success: false,
+				  message: 'Failed to increment/decrement votes for step'
+				}); 
+              } else if (err == 'Failed to set approval') {
+              	res.json({
+				  success: false,
+				  message: 'Failed to set approval status for step'
+				}); 
+              } else if (err == 'Failed to record vote') {
+              	res.json({
+				  success: false,
+				  message: 'Failed to relate vote to user'
+				}); 
+              } else if (err == 'Failed to delete vote') {
+              	res.json({
+				  success: false,
+				  message: 'Failed to delete previous vote related to user'
+				}); 
+              } else {
+              	res.json({
+				  success: false,
+				  message: 'Error in pool connecting'
+				}); 
+              }
+	          next(err);           
+	        } else {            
+	          // code to execute on data retrieval
+	          console.log(`Data: ${data}`); 
+	          // The data received here is a packet of rows whose values
+	          // can be accessed with property ID's
+	          res.json({
+	           	success: true,
+	         	message: data
+	          });  
+	        }    
+		  });
+	} catch (err) {
+		res.json({
+		    success: false,
+		    message: 'Cannot patch switch step!'
+		});
+		next(err);
+	}
+});
+
+/**
+* endpoint: /switchStep
+* method: PATCH
+* description: if token authentication fails for switching increment or decrement for a specific step
+* responses: 
+*/
+router.patch('/switchStep', async (req, res, next) => {
+  	res.json({
+		success: false,
+		message: 'Token cannot be validated!'
+	});
+});
+
+
+
+
+
+
 
 /**
 * endpoint: /signup

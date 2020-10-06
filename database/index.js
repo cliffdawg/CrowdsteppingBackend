@@ -754,7 +754,148 @@ async function negateStep(specificStep, callback) {
 
 }
 
-// check duplicates needed for goals/s teps
+
+
+
+
+
+async function switchStep(specificStep, callback) {
+
+	pool.getConnection(function(err, connection) {
+  	  if (err) {
+	    console.error('Error in pool connecting: ' + err.stack);
+	    callback('Error in pool connecting!', null);
+	    return;
+	  } 
+	  console.log('Pool connected!');
+
+	  console.log(`Finding goal: SELECT * FROM goals WHERE goal = \'${specificStep.goal}\';`);
+
+	  connection.query('SELECT * FROM goals WHERE goal = ?;', [specificStep.goal], (err, rows, fields) => {
+			//try {  
+			  if (err || rows.length == 0) {
+				console.log(`Failure checking for goal: ${err}`);
+				if (err) {
+					callback('Error checking for goal', null);
+				} else {
+			    	callback('Goal doesn\'t exist', null);
+				}
+		      } else {
+		      	console.log(`Success: ${rows[0].goal}`);
+				console.log(`Finding step: SELECT * FROM ${rows[0].goal} WHERE step = \'${specificStep.step}\';`);
+				connection.query('SELECT * FROM ?? WHERE step = ?;', [rows[0].goal, specificStep.step], (err, rows, fields) => {
+					//try {  
+					  if (err || rows.length == 0) {
+						console.log(`Failure finding step : ${err}`);
+						if (err) {
+						  callback('Error finding step', null);
+						} else {
+			    		  callback('Step doesn\'t exist', null);
+						}
+		      		  } else {
+				      	// Record yesVotes and noVotes to use in following query, 'rows' field changes with future queries
+				      	var currentYesVotes = rows[0].yesVotes;
+				      	var currentNoVotes = rows[0].noVotes;
+				      	console.log(`Success: ${rows[0].step}`);
+						// Increment and decrement votes based on endorse boolean
+						var incrementVotes = specificStep.endorsed ? 'yesVotes' : 'noVotes';
+						var decrementVotes = specificStep.endorsed ? 'noVotes' : 'yesVotes';						
+						console.log(`UPDATE ${specificStep.goal} SET ${incrementVotes}=${incrementVotes}+1, ${decrementVotes}=${decrementVotes}-1 WHERE step = \'${rows[0].step}\';`);
+						connection.query('UPDATE ?? SET ??=??+1, ??=??-1 WHERE step = ?;', [specificStep.goal, incrementVotes, incrementVotes, decrementVotes, decrementVotes, rows[0].step], (err, rows, fields) => {
+							if (err) {
+							  connection.release();
+							  console.log(`Failure: ${err}, failed to increment/decrement for ${specificStep.goal}, ${specificStep.step}`);
+							  callback('Failed to increment/decrement votes', null);
+							} else {
+								currentYesVotes = (specificStep.endorsed) ? currentYesVotes+1 : currentYesVotes-1;
+								currentNoVotes = (specificStep.endorsed) ? currentNoVotes-1 : currentNoVotes+1;
+								console.log(`Success switching to ${specificStep.endorsed ? 'endorsing' : 'opposing'} vote for ${specificStep.goal}, ${specificStep.step}`);
+							  	// Calculate the approval status of the step after incrementing/decrementing votes
+							  	console.log(`currentYesVotes: ${currentYesVotes}, currentNoVotes: ${currentNoVotes}`);
+								var approvedResult = (currentYesVotes >= currentNoVotes) ? true : false;
+								console.log(`UPDATE ${specificStep.goal} SET approved=${approvedResult} WHERE step = \'${specificStep.step}\';`);
+								connection.query('UPDATE ?? SET approved=? WHERE step = ?;', [specificStep.goal, approvedResult, specificStep.step], (err, rows, fields) => {
+									if (err) {
+									  connection.release();
+							  		  console.log(`Failure: ${err}, failed to set ${approvedResult ? 'approved' : 'not approved'} for ${specificStep.goal}, ${specificStep.step}`);
+							  		  callback('Failed to set approval', null);
+									} else {
+							  		  console.log(`Success setting ${approvedResult ? 'approved' : 'not approved'} for ${specificStep.goal}, ${specificStep.step}`);
+							  		  // Insert new vote and remove previous vote asynchronously
+							  		  async.parallel([
+    								  function(parallelCallback) {
+   									  	  pool.getConnection(function(err, connection) {
+	  	  									if (err) {
+		    								  console.error('Error in pool connecting: ' + err.stack);
+		    								  parallelCallback('Error in pool connecting!', null);
+		    								  return;
+		  									} 
+											// Insert incremented vote and record so that can later check if a user made that vote. This query inserts only if doesn't already exist
+							  		  		console.log(`INSERT INTO votes (id, goal, step, endorsed) SELECT * FROM (SELECT ${specificStep.userID}, \'${specificStep.goal}\', \'${specificStep.step}\', ${specificStep.endorsed}) AS temp WHERE NOT EXISTS (SELECT * FROM votes WHERE id = ${specificStep.userID} AND goal = \'${specificStep.goal}\' AND step = \'${specificStep.step}\' AND endorsed = ${specificStep.endorsed}) LIMIT 1;`);
+							  		  		connection.query('INSERT INTO votes (id, goal, step, endorsed) SELECT * FROM (SELECT ?, ?, ?, ?) AS temp WHERE NOT EXISTS (SELECT * FROM votes WHERE id = ? AND goal = ? AND step = ? AND endorsed = ?) LIMIT 1;', [specificStep.userID, specificStep.goal, specificStep.step, specificStep.endorsed, specificStep.userID, specificStep.goal, specificStep.step, specificStep.endorsed], (err, rows, fields) => {
+							  		  			connection.release();
+							  	  	  	  		if (err) {
+							    				  console.log(`Failure: ${err}, failed to record ${specificStep.endorsed ? 'endorsing' : 'opposing'} vote for ${specificStep.goal}, ${specificStep.step}`);
+							  					  parallelCallback('Failed to record vote', null);
+							  	  		  		} else {
+							  	  		  		  console.log(`Success inserting vote for ${specificStep.goal}, ${specificStep.step}`);
+							  					  parallelCallback(null, rows);
+							  	  		  		}
+							  		  		})
+										  });
+									  },
+							  		  function(parallelCallback) {
+							  		  	  pool.getConnection(function(err, connection) {
+	  	  									if (err) {
+		    								  console.error('Error in pool connecting: ' + err.stack);
+		    								  parallelCallback('Error in pool connecting!', null);
+		    								  return;
+		  									} 
+											// Delete the outdated vote
+							  		  		console.log(`DELETE FROM votes WHERE id = ${specificStep.userID} AND goal = \'${specificStep.goal}\' AND step = \'${specificStep.step}\' AND endorsed = ${!specificStep.endorsed};`);
+							  		  		connection.query('DELETE FROM votes WHERE id = ? AND goal = ? AND step = ? AND endorsed = ?;', [specificStep.userID, specificStep.goal, specificStep.step, !specificStep.endorsed], (err, rows, fields) => {
+							  		  			connection.release();
+							  	  	  			if (err) {
+							    				  console.log(`Failure: ${err}, failed to delete ${specificStep.endorsed ? 'opposing' : 'endorsing'} vote for ${specificStep.goal}, ${specificStep.step}`);
+							  					  parallelCallback('Failed to delete vote', null);
+							  	  				} else {
+							  	  				  console.log(`Success deleting vote for ${specificStep.goal}, ${specificStep.step}`);
+							  					  parallelCallback(null, rows);
+							  	  		  		}
+							  		  		})
+										  });
+									  }],
+									  function(err, results) {
+									  	  if (err) {
+									  		  callback(err, null);
+									  	  } else {
+	    								  	  // Errors and results stacked in an array [0],[1]
+	 									  	  callback(null, results);
+	 									  }
+									  });
+									}
+								})
+							}
+						})
+					// } catch (err) {
+					// 	callback(err, 'Username has no match');
+					// }
+					  }
+			  	})
+			  }
+			// } catch (err) {
+			// 	callback(err, 'Username has no match');
+			// }
+	  })
+	});
+
+}
+
+
+
+
+
+
 
 async function getNumber() {
 	console.log('Number');
@@ -773,5 +914,6 @@ module.exports = {
 	createStep,
 	patchStep,
 	negateStep,
+	switchStep,
 	getNumber
 };
