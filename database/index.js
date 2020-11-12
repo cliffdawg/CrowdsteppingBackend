@@ -59,13 +59,13 @@ connection.connect((err) => {
   })
 });
 
-Creating the users table:
+Creating the users table (SHA-256 hash is 64 chars):
 
 CREATE TABLE users( 
 	id INT unsigned NOT NULL AUTO_INCREMENT, 
 	username VARCHAR(50) NOT NULL, 
 	email VARCHAR(50) NOT NULL, 
-	passHash CHAR(60) BINARY NOT NULL, 
+	passHash CHAR(100) BINARY NOT NULL, 
 	PRIMARY KEY (id) ) DEFAULT CHARSET=utf8;
 
 Creating the votes table:
@@ -73,7 +73,7 @@ Creating the votes table:
 CREATE TABLE votes( 
 	id INT unsigned NOT NULL, 
 	goal VARCHAR(100) NOT NULL DEFAULT '', 
-	step VARCHAR(500) NOT NULL DEFAULT '',
+	step VARCHAR(500) NOT NULL DEFAULT '', 
 	endorsed BOOLEAN NOT NULL DEFAULT FALSE, 
 	CONSTRAINT FK_id FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE );
 
