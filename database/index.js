@@ -5,6 +5,7 @@
 // The MySQL protocol is sequential, this means that you need multiple connections to execute queries in parallel
 // Can't use 'index' as a column in a MySQL table because it causes error
 // Can only create foreign key constraint on primary key because it has to be unique
+// Maximum name length for table is 64
 
 const mysql = require('mysql');
 const async = require('async');
